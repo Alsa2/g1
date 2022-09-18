@@ -22,7 +22,7 @@ Justify the tools/structure of your solution
 1. The electronic ledger is a text-based software (Runs in the Terminal).
 2. The electronic ledger display the basic description of the cyrptocurrency selected.
 3. The electronic ledger allows to enter, withdraw and record transactions.
-4.
+4. The electronic ledger allows to display stockes of the desired cryptocurrency with plotext.
 5.
 6.
 
