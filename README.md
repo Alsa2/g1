@@ -14,7 +14,7 @@ Apart for this requirements, Ms Sato is open to explore a cryptocurrency selecte
 ## Proposed Solution
 
 Design statement:
-I will to design and make a ———— for a client who is ———. The ——– will about ———— and is constructed using the software ———. It will take  ———- to make and will be evaluated according to the criteria ———.
+I will to design and make a numerical ledger for a client who is Ms. Sato. The numerical ledger will about Bitcoin and is constructed using the software Python. It will take  ———- to make and will be evaluated according to the criteria ———.
 
 Justify the tools/structure of your solution
 
@@ -22,13 +22,17 @@ Justify the tools/structure of your solution
 1. The electronic ledger is a text-based software (Runs in the Terminal).
 2. The electronic ledger display the basic description of the cyrptocurrency selected.
 3. The electronic ledger allows to enter, withdraw and record transactions.
-4. The electronic ledger allows to display stockes of the desired cryptocurrency with plotext.
-5.
-6.
+4. The electronic ledger database is encrypted, and application usage requires password authentication.
+5. The electronic ledger allows to display the number of bitcoin in the wallet with a graph (plotext).
+6. The electronic ledger shows the value of the wallet in many currcencies.
 
 # Criteria B: Design
 
 ## System Diagram
+
+![](https://github.com/Alsa2/unit-1/blob/main/Images/SystemDiagram.png)
+
+ **Fig. 1** System Diagram
 
 ## Flow Diagrams
 
