@@ -1,6 +1,6 @@
 # Crypto Wallet
 
-![](22ROOSE-master768.gif)  
+![](Images/22ROOSE-master768.gif)  
 <sub>Illustration for Glenn Harvey</sub>
 
 # Criteria A: Planning
@@ -41,6 +41,8 @@ Justify the tools/structure of your solution
 | Task No | Planned Action                                                | Planned Outcome                                                                                                 | Time estimate | Target completion date | Criterion |
 |---------|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|---------------|------------------------|-----------|
 | 1       | Create system diagram                                         | To have a clear idea of the hardware and software requirements for the proposed solution                        | 10min         | Sep 24                 | B         |
-| 2       | Build the bones of the app                                    | To accomplish the first 3 succes criteria in thr list                                                           | 40min         | Sep 25                 | ?         |
+| 2       | Flow diagram login                                            | Created a flow diagram for the login system                          | 10min         | Sep 27                 | B         |
+| 3       | Login Code                                                    | Created the login code                                               | 40min         | Sep 27                 | B         |
+| 3       | Tested Login System                                           | Tested the login system -> Succesful                                 | 40min         | Sep 27                 | E         |
 
 
