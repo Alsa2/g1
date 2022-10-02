@@ -1,6 +1,8 @@
 import curses
 import curses.textpad
+from email.message import Message
 import time
+from xml.dom.expatbuilder import parseString
 from library import *
 from cryptography.fernet import Fernet
 
@@ -48,6 +50,43 @@ def main(stdsrc):
     if k == ord('q'):
         print("Successfully exited")
         quit(10)
+    if k == ord('d'):
+
+        # add a status bar at the bottom with a text zone for moving across functions
+        stdsrc.attron(curses.color_pair(1))
+        stdsrc.addstr(h-1, 0, "Debug menu <")
+        stdsrc.refresh()
+        stdsrc.getch()
+        debug = ""
+        chInput= stdsrc.getch()
+        while True:
+            if chInput == 127:
+                debug = debug[:-1]
+                stdsrc.addstr(h-1, 0, ("Debug menu <" +debug + "  "))
+            elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                break
+            else:
+                strInput = chr(int(chInput))
+                debug = str(debug) + str(strInput)
+                curentdebugoutput = ("Debug menu <" + debug)
+                stdsrc.addstr(h-1, 0, curentdebugoutput)
+            stdsrc.refresh()
+            chInput= stdsrc.getch()
+        stdsrc.attron(curses.color_pair(2))
+        if debug == "decrypt":
+            decrypt_file(stdsrc)
+        elif debug == "encrypt":
+            encrypt_file(stdsrc)
+        elif debug == "exit":
+            screen_exit(stdsrc)
+        elif debug == "login":
+            login(stdsrc)
+        elif debug == "menu":
+            main_menu(stdsrc, 0)
+        exit()
+        
+
+
     
     # Remove the entry message
     stdsrc.clear()
@@ -57,9 +96,10 @@ def main(stdsrc):
     # Ask for login information
     login(stdsrc)
 
-    print("step 2 ok")
+    # Decryption of transaction records
 
-    print("step 1 ok")
+    decrypt_file(stdsrc)
+
     # Set up current row
     current_row_idx = 0
     # Print the main menu
@@ -73,6 +113,8 @@ def main(stdsrc):
         elif key == curses.KEY_DOWN and current_row_idx < len(menu)-1:
             current_row_idx += 1
         elif key == curses.KEY_ENTER or key in [10, 13]:
+            if current_row_idx == 4:
+                screen_exit(stdsrc)
             stdsrc.addstr(0, 0, "You pressed {}".format(menu[current_row_idx]))
             stdsrc.refresh()
             stdsrc.getch()
@@ -167,10 +209,132 @@ _|    _|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|        _|_|_|    _|_|_|_|  _|    
             break
         
 
-        
+
+def decrypt_file(stdsrc):
+    """
+    Decrypts a file using the key
+    """
+    h, w = stdsrc.getmaxyx()
+    stdsrc.clear()
+    textmessage = ("Enter Decryption Key: ")
+
+    # ask for decryption key
+    win = curses.newwin(1, 40, h//2, w//2 - 20)
+    box = curses.textpad.Textbox(win)
+    curses.textpad.rectangle(stdsrc, h//2-2, w//2-(len(textmessage)//2+10), h//2+2, w//2+len(textmessage)//2+10)
+    stdsrc.addstr(h//2 - 1, w//2-len(textmessage)//2, textmessage)
+    stdsrc.refresh()
+    box.edit()
+    key = box.gather().replace("/n", "")
+    key = key.replace(" ", "")
+    # remove the window
+    win.clear()
+    stdsrc.clear()
+    time.sleep(1)
 
 
+    defaultkey = False
+    if str(key) == "default":
+        with open('filekey.key', 'rb') as filekey:
+            key = filekey.read()
+        defaultkey = True
+        try:
+            fernet = Fernet(key)
+        except:
+            stdsrc.clear()
+            stdsrc.addstr(h//2, w//2, "Invalid Defaut Key")
+            stdsrc.refresh()
+            time.sleep(2)
+            exit()
+    else:
+        try:
+            fernet = Fernet(key)
+        except:
+            stdsrc.clear()
+            stdsrc.addstr(h//2, w//2, "Invalid Key")
+            stdsrc.refresh()
+            time.sleep(2)
+            exit()
+    
+    stdsrc.addstr(h//2+4, w//2 - 35, "Loading Key...")
+    h, w = stdsrc.getmaxyx()
+    win2 = curses.newwin(1, 80, h//2+3, w//2 - 35)
+    for i in range(0, 30):
+        time.sleep(0.01)
+        win2.addstr(0, 0, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(i/2), i))
+        win2.refresh()
+    win2.clear()
+    stdsrc.addstr(h//2+3, w//2 - 35, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(30/2), 30))
+    if defaultkey:
+        stdsrc.addstr(h//2+4, w//2 - 35, "Default Key Loaded  ")
+    else:
+        stdsrc.addstr(h//2+4, w//2-10, "Key loaded   ")
+    stdsrc.refresh()
 
+    # loading file
+    stdsrc.addstr(h//2+4, w//2 - 35, "Loading File...")
+    with open('transactions.csv', 'rb') as enc_file:
+        encrypted = enc_file.read()
+    """
+    stdsrc.clear()
+    stdsrc.addstr(h//2+4, w//2 - 35, encrypted)
+    stdsrc.refresh()
+    time.sleep(2)
+    exit(encrypted)
+    """
+    h, w = stdsrc.getmaxyx()
+    win2 = curses.newwin(1, 80, h//2+3, w//2 - 35)
+    for i in range(30, 50):
+        time.sleep(0.01)
+        win2.addstr(0, 0, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(i/2), i))
+        win2.refresh()
+    win2.clear()
+    stdsrc.addstr(h//2+3, w//2 - 35, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(50/2), 50))
+    stdsrc.addstr(h//2+5, w//2-10, "Loaded Encrypted File   ")
+    stdsrc.refresh()
+
+    stdsrc.addstr(h//2+4, w//2 - 35, "Decrypting File...")
+    """
+    try:
+        decrypted = fernet.decrypt(encrypted)
+    except:
+        stdsrc.clear()
+        stdsrc.addstr(h//2, w//2, "Invalid Key")
+        stdsrc.refresh()
+        time.sleep(2)
+        exit()
+        """
+    
+    decrypted = fernet.decrypt(encrypted)
+    
+    win2 = curses.newwin(1, 80, h//2+3, w//2 - 35)
+    for i in range(50, 75):
+        time.sleep(0.01)
+        win2.addstr(0, 0, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(i/2), i))
+        win2.refresh()
+    win2.clear()
+    stdsrc.addstr(h//2+3, w//2 - 35, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(75/2), 75))
+    stdsrc.addstr(h//2+5, w//2-10, "File Decrypted   ")
+    stdsrc.refresh()
+
+    stdsrc.addstr(h//2+4, w//2 - 35, "Remplacing File...")
+    decrypted = fernet.decrypt(encrypted)
+    win2 = curses.newwin(1, 80, h//2+3, w//2 - 35)
+    for i in range(75, 101):
+        time.sleep(0.01)
+        win2.addstr(0, 0, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(i/2), i))
+        win2.refresh()
+    win2.clear()
+    stdsrc.addstr(h//2+3, w//2 - 35, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(101/2), 100))
+    stdsrc.addstr(h//2+5, w//2-10, "File Replaced   ")
+    stdsrc.refresh()
+
+    time.sleep(1)
+    stdsrc.addstr(h//2+3, w//2 - 35, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(101/2), 100))
+    stdsrc.addstr(h//2+5, w//2-10, "Decryption Succesfully Complete")
+    stdsrc.refresh()
+    time.sleep(1)
+    
 
 def main_menu(stdsrc, selected_row_idx):
 
@@ -196,7 +360,6 @@ def main_menu(stdsrc, selected_row_idx):
             stdsrc.attron(curses.color_pair(1))
         else:
             stdsrc.addstr(y, x, row)
-    
     # Refresh the screen
     stdsrc.refresh()
 
@@ -204,6 +367,10 @@ def screen_exit(stdsrc):
     stdsrc.clear()
     exit()
 
+def encrypt_file(stdsrc):
+    pass
+
+#curses.wrapper(decrypt_file)
 curses.wrapper(main)
 
 curses.initscr()
