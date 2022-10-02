@@ -2,10 +2,13 @@ import curses
 import curses.textpad
 import time
 from library import *
+from cryptography.fernet import Fernet
+
 
 # Defining Variables
 # Create menu list
 menu = ['Transaction Managment', 'View Wallet Records', 'Data Managment', 'Setting', 'Exit']
+fernet_password = "2wFYfwlLpg4iy_k-wkGxNUH3pGLYdzjFbEyf4jQJfiY="
 
 def main(stdsrc):
     # Remove cursor
@@ -127,8 +130,7 @@ def login(stdsrc):
         stdsrc.clear()
         if simple_login(username, password):
             exit_condition = True
-            result = """
-  _|_|    _|    _|  _|_|_|_|_|  _|    _|    _|_|    _|_|_|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|          _|_|      _|_|_|    _|_|_|  _|_|_|_|    _|_|_|  
+            result = """  _|_|    _|    _|  _|_|_|_|_|  _|    _|    _|_|    _|_|_|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|          _|_|      _|_|_|    _|_|_|  _|_|_|_|    _|_|_|  
 _|    _|  _|    _|      _|      _|    _|  _|    _|  _|    _|    _|    _|        _|        _|    _|      _|    _|  _|        _|        _|        _|        
 _|_|_|_|  _|    _|      _|      _|_|_|_|  _|    _|  _|_|_|      _|      _|_|    _|_|_|    _|    _|      _|_|_|_|  _|        _|        _|_|_|      _|_|    
 _|    _|  _|    _|      _|      _|    _|  _|    _|  _|    _|    _|          _|  _|        _|    _|      _|    _|  _|        _|        _|              _|  
