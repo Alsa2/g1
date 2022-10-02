@@ -1,6 +1,7 @@
 import curses
 import curses.textpad
 import time
+from library import *
 
 # Defining Variables
 # Create menu list
@@ -14,6 +15,7 @@ def main(stdsrc):
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.color_pair(1)
     stdsrc.attron(curses.color_pair(1))
 
@@ -48,6 +50,13 @@ def main(stdsrc):
     stdsrc.clear()
 
     print("step 1 ok")
+
+    # Ask for login information
+    login(stdsrc)
+
+    print("step 2 ok")
+
+    print("step 1 ok")
     # Set up current row
     current_row_idx = 0
     # Print the main menu
@@ -66,6 +75,100 @@ def main(stdsrc):
             stdsrc.getch()
         main_menu(stdsrc, current_row_idx)
         
+def login(stdsrc):
+    stdsrc.clear()
+    while True:
+        # Setup a box
+        h, w = stdsrc.getmaxyx()
+        boxtextmessage = ("Please enter you login credentials")
+        box1 = curses.newwin(10, len(boxtextmessage), h//2 - 5, w//2 - len(boxtextmessage)//2)
+        box1.box()    
+        box1.addstr(boxtextmessage)
+        stdsrc.refresh()
+        box1.refresh()
+    
+        #Getting Username
+        username = str("")
+        stdsrc.addstr(h//2 - 3, w//2 - len(boxtextmessage)//2+2, "Username: ")
+        stdsrc.refresh()
+        chInput= stdsrc.getch()
+        while True:
+            if chInput == 127:
+                username = username[:-1]
+                stdsrc.addstr(h//2 - 3, w//2 - len(boxtextmessage)//2+2, ("Username: " +username + "  "))
+            elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                break
+            else:
+                strInput = chr(int(chInput))
+                username = str(username) + str(strInput)
+                curentusernameoutput = ("Username: " + username)
+                stdsrc.addstr(h//2 - 3, w//2 - len(boxtextmessage)//2+2, curentusernameoutput)
+            stdsrc.refresh()
+            chInput= stdsrc.getch()
+        
+        #Getting Password
+        password = str("")
+        stdsrc.addstr(h//2 - 2, w//2 - len(boxtextmessage)//2+2, "Password: ")
+        stdsrc.refresh()
+        chInput= stdsrc.getch()
+        while True:
+            if chInput == 127:
+                password = password[:-1]
+                stdsrc.addstr(h//2 - 2, w//2 - len(boxtextmessage)//2+2, ("Password: " +len(password) * "*"+ "  "))
+            elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                break
+            else:
+                strInput = chr(int(chInput))
+                password = str(password) + str(strInput)
+                curentpasswordoutput = ("Password: " + len(password) * "*")
+                stdsrc.addstr(h//2 - 2, w//2 - len(boxtextmessage)//2+2, curentpasswordoutput)
+            stdsrc.refresh()
+            chInput= stdsrc.getch()
+        stdsrc.clear()
+        if simple_login(username, password):
+            exit_condition = True
+            result = """
+  _|_|    _|    _|  _|_|_|_|_|  _|    _|    _|_|    _|_|_|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|          _|_|      _|_|_|    _|_|_|  _|_|_|_|    _|_|_|  
+_|    _|  _|    _|      _|      _|    _|  _|    _|  _|    _|    _|    _|        _|        _|    _|      _|    _|  _|        _|        _|        _|        
+_|_|_|_|  _|    _|      _|      _|_|_|_|  _|    _|  _|_|_|      _|      _|_|    _|_|_|    _|    _|      _|_|_|_|  _|        _|        _|_|_|      _|_|    
+_|    _|  _|    _|      _|      _|    _|  _|    _|  _|    _|    _|          _|  _|        _|    _|      _|    _|  _|        _|        _|              _|  
+_|    _|    _|_|        _|      _|    _|    _|_|    _|    _|  _|_|_|  _|_|_|    _|_|_|_|  _|_|_|        _|    _|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|"""
+        else:
+            time.sleep(1)
+            exit_condition = False
+            result = """  _|_|      _|_|_|    _|_|_|  _|_|_|_|    _|_|_|      _|_|_|    _|_|_|_|  _|      _|  _|_|_|  _|_|_|_|  _|_|_|    
+_|    _|  _|        _|        _|        _|            _|    _|  _|        _|_|    _|    _|    _|        _|    _|  
+_|_|_|_|  _|        _|        _|_|_|      _|_|        _|    _|  _|_|_|    _|  _|  _|    _|    _|_|_|    _|    _|  
+_|    _|  _|        _|        _|              _|      _|    _|  _|        _|    _|_|    _|    _|        _|    _|  
+_|    _|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|        _|_|_|    _|_|_|_|  _|      _|  _|_|_|  _|_|_|_|  _|_|_|"""
+        #split the result into lines
+        result = result.splitlines()
+        #get the number of lines
+        num_lines = len(result)
+        #get the width of the widest line
+        max_width = max([len(line) for line in result])
+        #get the starting position of the box
+        start_x = w//2 - max_width//2
+        start_y = h//2 - num_lines//2
+        #create the box
+        box2 = curses.newwin(num_lines+2, max_width+2, start_y-1, start_x-1)
+        box2.box()
+        box2.attron(curses.color_pair(4))
+        #print the result
+        for i, line in enumerate(result):
+            stdsrc.attron(curses.color_pair(2))
+            box2.addstr(i+1, 1, line)
+        box2.refresh()
+        time.sleep(2)
+        stdsrc.refresh()
+        if exit_condition:
+            break
+        
+
+        
+
+
+
 
 def main_menu(stdsrc, selected_row_idx):
 
@@ -95,5 +198,11 @@ def main_menu(stdsrc, selected_row_idx):
     # Refresh the screen
     stdsrc.refresh()
 
+def screen_exit(stdsrc):
+    stdsrc.clear()
+    exit()
+
 curses.wrapper(main)
+
+curses.initscr()
 
