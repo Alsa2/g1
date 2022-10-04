@@ -1,4 +1,3 @@
-from cmath import e
 import curses
 import curses.textpad
 from email.message import Message
@@ -581,7 +580,7 @@ def encrypt_file(stdsrc):
     time.sleep(1)
 
 def func1(stdsrc):
-
+    pass
 #curses.wrapper(decrypt_file)
 curses.wrapper(main)
 
