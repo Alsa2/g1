@@ -362,7 +362,8 @@ def decrypt_file(stdsrc):
     stdsrc.addstr(h//2+3, w//2 - 35, "Progress: [{0:50s}] {1:.1f}%".format('#' * int(101/2), 100))
     stdsrc.addstr(h//2+8, w//2-10, "Decryption Succesfully Complete")
     stdsrc.refresh()
-    time.sleep(1)
+    time.sleep(2)
+    stdsrc.clear()
 
     
 
@@ -394,11 +395,41 @@ def main_menu(stdsrc, selected_row_idx):
     stdsrc.refresh()
 
 def screen_exit(stdsrc):
+    h, w = stdsrc.getmaxyx()
     stdsrc.clear()
+    # add a litle cute rectangle
+    boxtextmessage = ("Do you want to encrypt?")
+    box1 = curses.newwin(5, len(boxtextmessage) + 6, h//2 - 1, w//2-3 - len(boxtextmessage)//2)
+    box1.box()    
+    stdsrc.refresh()
+    box1.refresh()
+    stdsrc.addstr(h//2, w//2 - len(boxtextmessage)//2, boxtextmessage)
     # ask if the user whats to encrypt
-    stdsrc.addstr(h//2, w//2 - 10, "Do you want to encrypt?")
-    key = stdsrc.getkey()
-    while key 
+    idx = 0
+    while True:
+        if idx == 0:
+            stdsrc.attron(curses.color_pair(1))
+            stdsrc.addstr(h//2+2, w // 2 - 11, "Yes")
+            stdsrc.attron(curses.color_pair(2))
+            stdsrc.addstr(h//2+2, w // 2 + 10, "No")
+        elif idx == 1:
+            stdsrc.attron(curses.color_pair(2))
+            stdsrc.addstr(h//2+2, w // 2 - 11, "Yes")
+            stdsrc.attron(curses.color_pair(1))
+            stdsrc.addstr(h//2+2, w // 2 + 10, "No")
+        stdsrc.refresh()
+        key = stdsrc.getkey()
+        if key == "KEY_LEFT":
+            idx = 0
+        elif key == "KEY_RIGHT":
+            idx = 1
+        elif key == "KEY_ENTER" or key in ["\n", "\r"]:
+            if idx == 0:
+                encrypt_file(stdsrc)
+                break
+            elif idx == 1:
+                break
+
     exit()
 
 def encrypt_file(stdsrc):
@@ -548,6 +579,8 @@ def encrypt_file(stdsrc):
     stdsrc.addstr(h//2+8, w//2-10, "Encryption Succesfully Complete")
     stdsrc.refresh()
     time.sleep(1)
+
+def func1(stdsrc):
 
 #curses.wrapper(decrypt_file)
 curses.wrapper(main)
