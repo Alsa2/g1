@@ -5,12 +5,15 @@ import time
 from xml.dom.expatbuilder import parseString
 from library import *
 from cryptography.fernet import Fernet
+import csv
 
 
 # Defining Variables
 # Create menu list
 menu = ['Transaction Managment', 'View Wallet Records', 'Data Managment', 'Setting', 'Exit']
-fernet_password = "2wFYfwlLpg4iy_k-wkGxNUH3pGLYdzjFbEyf4jQJfiY="
+tranmenu = ["Add Transaction", "Remove Transaction", "Edit Transaction", "View Transactions", "Back"]
+
+
 
 def main(stdsrc):
     # Remove cursor
@@ -40,10 +43,52 @@ def main(stdsrc):
     win = curses.newwin(h-2, w-2, 1, 1)
     stdsrc.box()
 
+    def addtransaction(stdsrc):
+        # importing transaction csv file
+        # the transaction file is separated into 3 columns
+        # the first column is the updated balance
+        # the second column is the date of the transaction in the utc time
+        # the third column is notes about the transaction
+
+
+
+
+        # Get the window size
+        h, w = stdsrc.getmaxyx()
+        # Creating a window
+        win = curses.newwin(h-5, w-10, 20, 10)
+        
+    
+    
 
     # Refresh the screen
     win.box()
     stdsrc.refresh()
+    def firstoptionmenu(stdscr):
+        stdsrc.clear()
+        current_row_idx = 0
+        stdsrc.refresh()
+        func1(stdsrc, current_row_idx)
+        exitcondition = 0
+        while exitcondition != 1:
+            key = stdsrc.getch()
+            if key == curses.KEY_UP and current_row_idx > 0:
+                current_row_idx -= 1
+            elif key == curses.KEY_DOWN and current_row_idx < len(tranmenu)-1:
+                current_row_idx += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                if current_row_idx == 0:
+                    addtransaction(stdsrc)
+                if current_row_idx == 4:
+                    stdscr.clear()
+                    current_row_idx = 0
+                    # Print the main menu
+                    main_menu(stdsrc, current_row_idx)
+                    break
+                stdsrc.addstr(0, 0, "You pressed {}".format(tranmenu[current_row_idx]))
+                stdsrc.refresh()
+                stdsrc.getch()
+            func1(stdsrc, current_row_idx)
 
     # Wait for any key to be pressed
     k = stdsrc.getch()
@@ -91,15 +136,44 @@ def main(stdsrc):
     # Remove the entry message
     stdsrc.clear()
 
-    print("step 1 ok")
 
     # Ask for login information
     login(stdsrc)
 
-    # Decryption of transaction records
-
-    decrypt_file(stdsrc)
-
+    stdsrc.clear()
+    # add a litle cute rectangle
+    boxtextmessage = ("Do you want to decrypt?")
+    box1 = curses.newwin(5, len(boxtextmessage) + 6, h//2 - 1, w//2-3 - len(boxtextmessage)//2)
+    box1.box()    
+    stdsrc.refresh()
+    box1.refresh()
+    stdsrc.addstr(h//2, w//2 - len(boxtextmessage)//2, boxtextmessage)
+    # Ask for decryption of transaction records
+    idx = 0
+    while True:
+        if idx == 0:
+            stdsrc.attron(curses.color_pair(1))
+            stdsrc.addstr(h//2+2, w // 2 - 11, "Yes")
+            stdsrc.attron(curses.color_pair(2))
+            stdsrc.addstr(h//2+2, w // 2 + 10, "No")
+        elif idx == 1:
+            stdsrc.attron(curses.color_pair(2))
+            stdsrc.addstr(h//2+2, w // 2 - 11, "Yes")
+            stdsrc.attron(curses.color_pair(1))
+            stdsrc.addstr(h//2+2, w // 2 + 10, "No")
+        stdsrc.refresh()
+        key = stdsrc.getkey()
+        if key == "KEY_LEFT":
+            idx = 0
+        elif key == "KEY_RIGHT":
+            idx = 1
+        elif key == "KEY_ENTER" or key in ["\n", "\r"]:
+            if idx == 0:
+                decrypt_file(stdsrc)
+                break
+            elif idx == 1:
+                break
+    stdsrc.clear()
     # Set up current row
     current_row_idx = 0
     # Print the main menu
@@ -113,6 +187,8 @@ def main(stdsrc):
         elif key == curses.KEY_DOWN and current_row_idx < len(menu)-1:
             current_row_idx += 1
         elif key == curses.KEY_ENTER or key in [10, 13]:
+            if current_row_idx == 0:
+                firstoptionmenu(stdsrc)
             if current_row_idx == 4:
                 screen_exit(stdsrc)
             stdsrc.addstr(0, 0, "You pressed {}".format(menu[current_row_idx]))
@@ -579,8 +655,37 @@ def encrypt_file(stdsrc):
     stdsrc.refresh()
     time.sleep(1)
 
-def func1(stdsrc):
-    pass
+def func1(stdsrc, current_row_idx):
+    
+    #Transaction managment
+    tranmenu = ["Add Transaction", "Remove Transaction", "Edit Transaction", "View Transactions", "Back"]
+    
+     # Set up screen size
+    h, w = stdsrc.getmaxyx()
+
+    # Setup status bar
+    """
+    cursor_x = max(0, cursor_x)
+    cursor_x = min(w-1, cursor_x)
+    cursor_y = max(0, cursor_y)
+    cursor_y = min(h-1, cursor_y)
+    statusbarstr = "Press 'q' to exit | STATUS BAR | Pos: {}, {}".format(cursor_x, cursor_y)
+    """
+
+    # Set up menu
+    for idx, row in enumerate(tranmenu):
+        x = w//2 - len(row)//2
+        y = h//2 - len(tranmenu)//2 + tranmenu.index(row)
+        if idx == current_row_idx:
+            stdsrc.attron(curses.color_pair(3))
+            stdsrc.addstr(y, x, row)
+            stdsrc.attron(curses.color_pair(1))
+        else:
+            stdsrc.addstr(y, x, row)
+    # Refresh the screen
+    stdsrc.refresh()
+    
+
 #curses.wrapper(decrypt_file)
 curses.wrapper(main)
 
