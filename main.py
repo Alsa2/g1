@@ -1,5 +1,6 @@
 import curses
 import curses.textpad
+import datetime
 from email.message import Message
 import time
 from xml.dom.expatbuilder import parseString
@@ -24,6 +25,7 @@ def main(stdsrc):
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
     curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_RED)    
     curses.color_pair(1)
     stdsrc.attron(curses.color_pair(1))
 
@@ -49,18 +51,139 @@ def main(stdsrc):
         # the first column is the updated balance
         # the second column is the date of the transaction in the utc time
         # the third column is notes about the transaction
+        stdsrc.clear()
+        while True:
+            # Setup a box
+            h, w = stdsrc.getmaxyx()
+            boxtextmessage = ("Please Enter the Transaction Details")
+            box1 = curses.newwin(10, len(boxtextmessage), h//2 - 5, w//2 - len(boxtextmessage)//2)
+            box1.box()    
+            box1.addstr(boxtextmessage)
+            stdsrc.refresh()
+            box1.refresh()
+
+            # get if its a deposit or withdrawl
+            idx = 0
+            while True:
+                if idx == 0:
+                    box1.attron(curses.color_pair(1))
+                    box1.addstr(2, 5, "Deposit")
+                    box1.attron(curses.color_pair(2))
+                    box1.addstr(2, 23, "Withdraw")
+                elif idx == 1:
+                    box1.attron(curses.color_pair(2))
+                    box1.addstr(2, 5, "Deposit")
+                    box1.attron(curses.color_pair(1))
+                    box1.addstr(2, 23, "Withdraw")
+                box1.refresh()
+                key = stdsrc.getkey()
+                if key == "KEY_LEFT":
+                    idx = 0
+                elif key == "KEY_RIGHT":
+                    idx = 1
+                elif key == "KEY_ENTER" or key in ["\n", "\r"]:
+                    if idx == 0:
+                        deposit = True
+                        break
+                    elif idx == 1:
+                        deposit = False
+                        break
+            stdsrc.attron(curses.color_pair(2))
+            #Getting the amount
+            amount = str("")
+            stdsrc.addstr(h//2 - 1, w//2 - len(boxtextmessage)//2+5, "Amount: ")
+            stdsrc.refresh()
+            chInput= stdsrc.getch()
+            while True:
+                stdsrc.attron(curses.color_pair(2))
+                if chInput == 127:
+                    amount = amount[:-1]
+                    stdsrc.addstr(h//2 - 1, w//2 - len(boxtextmessage)//2+5, ("Amount: " +amount + "  "))
+                elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                    if amount == "":
+                        amount = "0"
+                        break
+                    if not amount.isdigit():
+                        stdsrc.attron(curses.color_pair(4))
+                        stdsrc.addstr(h//2, w//2 - len(boxtextmessage)//2+5, ("Only digits allowed"))
+                        stdsrc.attroff(curses.color_pair(4))
+                    elif amount[0] == "-":
+                        stdsrc.attron(curses.color_pair(4))
+                        stdsrc.addstr(h//2, w//2 - len(boxtextmessage)//2+5, ("Only positive numbers allowed"))
+                        stdsrc.attroff(curses.color_pair(4))
+                    elif int(amount) > 2147483647:
+                        stdsrc.attron(curses.color_pair(4))
+                        stdsrc.addstr(h//2, w//2 - len(boxtextmessage)//2+5, ("How is it even possible ???)"))
+                        stdsrc.attroff(curses.color_pair(4))
+                    else:
+                        amount = int(amount)
+                        break
+                else:
+                    stdsrc.attron(curses.color_pair(2))
+                    strInput = chr(int(chInput))
+                    amount = str(amount) + str(strInput)
+                    curentamountoutput = ("Amount: " + amount)
+                    stdsrc.addstr(h//2 - 1, w//2 - len(boxtextmessage)//2+5, curentamountoutput)
+                stdsrc.refresh()
+                chInput= stdsrc.getch()
+            
+            #Getting notes
+            notes = str("")
+            stdsrc.addstr(h//2 +1 , w//2 - len(boxtextmessage)//2+5, "Notes: ")
+            stdsrc.refresh()
+            chInput= stdsrc.getch()
+            while True:
+                if chInput == 127:
+                    notes = notes[:-1]
+                    stdsrc.addstr(h//2 + 1, w//2 - len(boxtextmessage)//2+5, ("Notes: " +notes + "  "))
+                elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                    break
+                else:
+                    strInput = chr(int(chInput))
+                    notes = str(notes) + str(strInput)
+                    curentnotesoutput = ("Notes: " + notes)
+                    stdsrc.addstr(h//2 + 1, w//2 - len(boxtextmessage)//2+5, curentnotesoutput)
+                stdsrc.refresh()
+                chInput= stdsrc.getch()
+            stdsrc.clear()
+    
+            # Putting the transaction into the csv file
+            # the transaction file is separated into 3 columns
+            # the first column is the updated balance
+            # the second column is the date of the transaction in the utc time
+            # the third column is notes about the transaction
+
+            # Getting the current balance
+            with open('transactions.csv', 'r') as f:
+                reader = csv.reader(f)
+                data = list(reader)
+                balance = data[-1][0]
+            # Calculating the new balance
+            if deposit:
+                balance = int(balance) + amount
+            else:
+                balance = int(balance) - amount
+            # Adding the transaction to the csv file
+            with open('transactions.csv', 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([balance, datetime.datetime.now(), notes])
+            stdsrc.clear()
+            stdsrc.addstr(h//2, w//2, "Transaction Added")
+            stdsrc.refresh()
+            time.sleep(1)
+            stdsrc.clear()
+            stdsrc.refresh()
+            break
 
 
 
+            # Get the window size
+            h, w = stdsrc.getmaxyx()
 
-        # Get the window size
-        h, w = stdsrc.getmaxyx()
-        # Creating a window
-        win = curses.newwin(h-5, w-10, 20, 10)
+    def edittransactionrecord(stdsrc):
+        pass
+
         
-    
-    
-
     # Refresh the screen
     win.box()
     stdsrc.refresh()
