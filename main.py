@@ -1,20 +1,35 @@
 import curses
+print("imported curses")
 import curses.textpad
+print("imported curses.textpad")
 import datetime
+print("imported datetime")
 from email.message import Message
+print("imported email.message")
+from re import A
+print("imported re")
 import time
+print("imported time")
 from xml.dom.expatbuilder import parseString
+print("imported xml.dom.expatbuilder")
 from library import *
+print("imported external libraries")
 from cryptography.fernet import Fernet
+print("imported cryptography.fernet")
 import csv
+print("imported csv")
+import plotext as plt
+print("imported plotext")
+import yfinance as yf
+print("imported yfinance")
+
 
 
 # Defining Variables
 # Create menu list
-menu = ['Transaction Managment', 'View Wallet Records', 'Data Managment', 'Setting', 'Exit']
-tranmenu = ["Add Transaction", "Remove Transaction", "Edit Transaction", "View Transactions", "Back"]
-
-
+menu = ['Transaction Managment', 'Record Graph', 'Crypto Value', 'Setting', 'Exit']
+tranmenu = ["Add Transaction", "View and edit Transactions", "Back"]
+currencymenu = ["--USD--", "--EUR--", "--GBP--", "--JPY--", "--CNY--", "Return"]
 
 def main(stdsrc):
     # Remove cursor
@@ -44,6 +59,212 @@ def main(stdsrc):
     #Add a box
     win = curses.newwin(h-2, w-2, 1, 1)
     stdsrc.box()
+
+
+
+    def graph(stdsrc):
+        #inport the amount of transaction and they date for the graph
+        # first value is the amount of the transaction and the second is the date
+        with open("transactions.csv", "r") as f:
+            reader = csv.reader(f)
+            data = list(reader)
+            # remove the third row
+            data.pop(2)
+            # take the amount in the first row
+            amounts = [int(i[0]) for i in data]
+            # take the date in the second row (format: dd/mm/yyyy)
+            plt.date_form('Y/m/d')
+            dates = [i[1] for i in data]
+            # remove the hour fros dates
+            dates = [i.split(" ")[0] for i in dates]
+            # remplace the - by / for the graph
+            dates = [i.replace("-", "/") for i in dates]
+            prices = amounts
+            # bgcolor = "black", fg = "white"
+            plt.axes_color("black")
+            plt.canvas_color("black")
+            plt.ticks_color("green")
+
+            plt.plot(dates, prices, color="green", label="Amount")
+
+            plt.title("Wallet Records")
+            plt.xlabel("Date")
+            plt.ylabel("Amount of transaction (press any key to continue)")
+            #stop curses screen
+            stdsrc.clear()
+            stdsrc.refresh()
+            curses.endwin()
+            plt.show()
+            #wait for the user to press a key
+            stdsrc.getch()
+            #remove the graph
+            plt.clear_figure()
+            plt.clear_terminal()
+            #restart curses screen
+            curses.initscr()
+
+    def currencyvalue(stdsrc):
+        stdsrc.clear()
+        current_row_idx = 0
+        stdsrc.refresh()
+        func2(stdsrc, current_row_idx)
+        exitcondition = 0
+        while exitcondition != 1:
+            key = stdsrc.getch()
+            if key == curses.KEY_UP and current_row_idx > 0:
+                current_row_idx -= 1
+            elif key == curses.KEY_DOWN and current_row_idx < len(currencymenu)-1:
+                current_row_idx += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                if current_row_idx == 0:
+                    return "BTC-USD"
+                elif current_row_idx == 1:
+                    return "BTC-EUR"
+                elif current_row_idx == 2:
+                    return "BTC-GBP"
+                elif current_row_idx == 3:
+                    return "BTC-JPY"
+                elif current_row_idx == 4:
+                    return "BTC-CNY"
+                elif current_row_idx == 5:
+                    return "exit"
+
+                stdsrc.refresh()
+
+            stdsrc.clear()
+            func2(stdsrc, current_row_idx)
+       
+    def settings(stdsrc):
+        pass
+
+    def func2(stdsrc, current_row_idx):
+        h, w = stdsrc.getmaxyx()
+        # Set up menu
+        for idx, row in enumerate(currencymenu):
+            x = w//2 - len(row)//2
+            y = h//2 - len(currencymenu)//2 + currencymenu.index(row)
+            if idx == current_row_idx:
+                stdsrc.attron(curses.color_pair(3))
+                stdsrc.addstr(y, x, row)
+                stdsrc.attron(curses.color_pair(1))
+            else:
+                stdsrc.addstr(y, x, row)
+        # Refresh the screen
+        stdsrc.refresh()
+
+    def cryptovalue(stdsrc):
+        h, w = stdsrc.getmaxyx()
+        currency = currencyvalue(stdsrc)
+        if currency == "exit":
+            stdsrc.clear()
+            return
+        
+        plt.date_form('d/m/Y')
+
+        # ask the user to enter the start date
+        editw = 7
+        stdsrc.clear()
+        stdsrc.refresh()
+        notes = ""
+        box5 = curses.newwin(h//5, w//2, h//5*2, w//4)
+        box5.box()
+        box5height, box5weight = box5.getmaxyx()
+        box5height = box5height//2
+        box5.addstr(box5height-1 , editw, "Enter the start date (format: yyyy-mm-dd): " + notes)
+        box5.refresh()
+        chInput= stdsrc.getch()
+        while True:
+            if chInput == 127:
+                notes = notes[:-1]
+                box5.addstr(box5height-1 , editw, ("Enter the start date (format: yyyy-mm-dd): " +notes + "  "))
+            elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                if len(notes) == 10:
+                    if notes[4] == "-" and notes[7] == "-":
+                        startdate = notes
+                        box5.addstr(box5height , editw, "                                                        ")
+                        break
+                    box5.attron(curses.color_pair(5))
+                    box5.addstr(box5height , editw, "Check that the date is in the correct format (yyyy-mm-dd)")
+                    box5.attroff(curses.color_pair(5))
+                else:
+                    box5.attron(curses.color_pair(5))
+                    box5.addstr(box5height , editw, "Invalid date format, please try again")
+                    box5.attroff(curses.color_pair(5))
+            else:
+                strInput = chr(int(chInput))
+                notes = str(notes) + str(strInput)
+                curentnotesoutput = ("Enter the start date (format: yyyy-mm-dd): " + notes)
+                box5.addstr(box5height-1 , editw, curentnotesoutput)
+            box5.refresh()
+            chInput= stdsrc.getch()
+
+        notes = ""
+        # ask the user to enter the end date
+        box5.addstr(box5height+1 , editw, "Enter the end date (format: yyyy-mm-dd, enter 'today' for today's date): " + notes)
+        box5.refresh()
+        chInput= stdsrc.getch()
+        while True:
+            if chInput == 127:
+                notes = notes[:-1]
+                box5.addstr(box5height+1 , editw, ("Enter the end date (format: yyyy-mm-dd, enter 'today' for today's date): " +notes + "  "))
+            elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                #chech if if input valid date format
+                if notes == "today":
+                    enddate = datetime.datetime.today().strftime('%d/%m/%Y')
+                    break
+                elif len(notes) == 10:
+                    if notes[4] == "-" and notes[7] == "-":
+                        enddate = notes
+                        break
+                    box5.addstr(box5height , editw, "                                                        ")
+                else:
+                    box5.attron(curses.color_pair(5))
+                    box5.addstr(box5height + 2, editw, "Invalid date format, please try again")
+                    box5.attroff(curses.color_pair(5))
+                
+            else:
+                strInput = chr(int(chInput))
+                notes = str(notes) + str(strInput)
+                curentnotesoutput = ("Enter the end date (format: yyyy-mm-dd, enter 'today' for today's date): " + notes)
+                box5.addstr(box5height+1 , editw, curentnotesoutput)
+            box5.refresh()
+            chInput= stdsrc.getch()
+        enddate = notes
+        if enddate == "today":
+            enddate = datetime.datetime.now().strftime("%Y-%m-%d")
+        # get the data from the API
+        del box5
+        stdsrc.clear()
+        stdsrc.refresh()
+        stdsrc.addstr(h//2, w//2, "Downloading flochart data...")
+        stdsrc.refresh()
+
+        data = yf.download(currency, startdate, enddate)
+
+
+        dates = plt.datetimes_to_string(data.index)
+
+        plt.candlestick(dates, data)
+        plt.axes_color("black")
+        plt.canvas_color("black")
+        plt.ticks_color("green")
+        plt.title(f"{currency} Graph")
+        plt.xlabel("Date")
+        plt.ylabel("Stock Price (press any key to exit")
+        stdsrc.clear()
+        stdsrc.refresh()
+        curses.endwin()
+        plt.show()
+        #wait for the user to press a key
+        stdsrc.getch()
+        #remove the graph
+        plt.clear_figure()
+        plt.clear_terminal()
+        #restart curses screen
+        curses.initscr()
+
+
+
 
     def addtransaction(stdsrc):
         # importing transaction csv file
@@ -153,20 +374,15 @@ def main(stdsrc):
             # the second column is the date of the transaction in the utc time
             # the third column is notes about the transaction
 
-            # Getting the current balance
-            with open('transactions.csv', 'r') as f:
-                reader = csv.reader(f)
-                data = list(reader)
-                balance = data[-1][0]
             # Calculating the new balance
             if deposit:
-                balance = int(balance) + amount
+                amount = int(amount)
             else:
-                balance = int(balance) - amount
+                amount = -int(amount)
             # Adding the transaction to the csv file
             with open('transactions.csv', 'a', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow([balance, datetime.datetime.now(), notes])
+                writer.writerow([amount, datetime.datetime.now(), notes])
             stdsrc.clear()
             stdsrc.addstr(h//2, w//2, "Transaction Added")
             stdsrc.refresh()
@@ -179,9 +395,285 @@ def main(stdsrc):
 
             # Get the window size
             h, w = stdsrc.getmaxyx()
+    def transedit(stdsrc, numberofrow):
+        h, w = stdsrc.getmaxyx()
+        box2 = curses.newwin(h, w//4, 0, w//4*3)
+        box2.box()
+        # add in the midle of the box
+        boxtextmessage = "Editing Transaction Record"
+        box2.addstr(0, w//8 - len(boxtextmessage)//2, boxtextmessage)
+        box2.refresh()
+        stdsrc.refresh()
+        idx = 0
+        boxh, boxw = box2.getmaxyx()
+        editw = 7
+        editd = boxw - len("Delete") - 7
+        while True:
+            if idx == 0:
+                box2.attron(curses.color_pair(1))
+                box2.addstr(2, editw, "Edit")
+                box2.attron(curses.color_pair(2))
+                box2.addstr(2, editd, "Delete")
+            elif idx == 1:
+                box2.attron(curses.color_pair(2))
+                box2.addstr(2, editw, "Edit")
+                box2.attron(curses.color_pair(1))
+                box2.addstr(2, editd, "Delete")
+            box2.refresh()
+            key = stdsrc.getkey()
+            if key == "KEY_LEFT":
+                idx = 0
+            elif key == "KEY_RIGHT":
+                idx = 1
+            elif key == "KEY_ENTER" or key in ["\n", "\r"]:
+                if idx == 0:
+                    delete = False
+                    break
+                elif idx == 1:
+                    delete = True
+                    break
+        if delete:
+            with open('transactions.csv', 'r') as f:
+                reader = csv.reader(f)
+                data = list(reader)
+            with open('transactions.csv', 'w', newline='') as f:
+                writer = csv.writer(f)
+                for row in data:
+                    if row != data[numberofrow]:
+                        writer.writerow(row)
+            box2.attron(curses.color_pair(4))
+            box2.addstr(boxh//2, boxw//2-len("Transaction Deleted") + 3, "Transaction Deleted")
+            box2.attroff(curses.color_pair(4))
+            stdsrc.refresh()
+            box2.refresh()
+            time.sleep(1)
+            stdsrc.clear()
+            stdsrc.refresh()
+            box2.clear()
+            del box2
+        if not delete:
 
-    def edittransactionrecord(stdsrc):
-        pass
+            # getting transaction data
+            boxtextmessage = ("Please Enter the Transaction Details")
+            boxh, boxw = box2.getmaxyx()
+            editw = 7
+            editd = boxw - len("Withdraw") - 7
+            box2.addstr(6, w//8 - len(boxtextmessage)//2, boxtextmessage)
+            box2.box()
+            stdsrc.refresh()
+            box2.refresh()
+            #get the transaction data
+            with open('transactions.csv', 'r') as f:
+                reader = csv.reader(f)
+                data = list(reader)
+            transaction = data[numberofrow]
+            date = transaction[1]
+            amount = str(transaction[0])
+            notes = transaction[2]
+            if int(amount) > 0:
+                idx = 0
+            else:
+                idx = 1
+            # get if its a deposit or withdrawl
+            while True:
+                if idx == 0:
+                    box2.attron(curses.color_pair(1))
+                    box2.addstr(8, editw, "Deposit")
+                    box2.attron(curses.color_pair(2))
+                    box2.addstr(8, editd, "Withdraw")
+                elif idx == 1:
+                    box2.attron(curses.color_pair(2))
+                    box2.addstr(8, editw, "Deposit")
+                    box2.attron(curses.color_pair(1))
+                    box2.addstr(8, editd, "Withdraw")
+                box2.attron(curses.color_pair(2))
+                box2.refresh()
+                key = stdsrc.getkey()
+                if key == "KEY_LEFT":
+                    idx = 0
+                elif key == "KEY_RIGHT":
+                    idx = 1
+                elif key == "KEY_ENTER" or key in ["\n", "\r"]:
+                    if idx == 0:
+                        deposit = True
+                        break
+                    elif idx == 1:
+                        deposit = False
+                        break
+            stdsrc.attron(curses.color_pair(2))
+            #Getting the amount
+            #remove the minus for the manout
+            if not deposit:
+                amount = amount[1:]
+            box2.addstr(10, editw, "Amount: " + amount)
+            box2.refresh()
+            chInput= stdsrc.getch()
+            while True:
+                stdsrc.attron(curses.color_pair(2))
+                if chInput == 127:
+                    amount = amount[:-1]
+                    box2.addstr(10, editw, ("Amount: " +amount + "  "))
+                elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                    if amount == "":
+                        amount = "0"
+                        break
+                    if not amount.isdigit():
+                        box2.attron(curses.color_pair(4))
+                        box2.addstr(11, editw, ("Only digits allowed"))
+                        box2.attroff(curses.color_pair(4))
+                    elif amount[0] == "-":
+                        box2.attron(curses.color_pair(4))
+                        box2.addstr(11, editw, ("Only positive numbers allowed"))
+                        box2.attroff(curses.color_pair(4))
+                    elif int(amount) > 2147483647:
+                        box2.attron(curses.color_pair(4))
+                        box2.addstr(11, editw, ("How is it even possible ???)"))
+                        box2.attroff(curses.color_pair(4))
+                    else:
+                        amount = int(amount)
+                        break
+                else:
+                    box2.attron(curses.color_pair(2))
+                    strInput = chr(int(chInput))
+                    amount = str(amount) + str(strInput)
+                    curentamountoutput = ("Amount: " + amount)
+                    box2.addstr(10, editw, curentamountoutput)
+                box2.refresh()
+                chInput= stdsrc.getch()
+            box2.addstr(11, 2, ((boxw-4)*" "))
+
+            #Getting notes
+            box2.addstr(12 , editw, "Notes: " + notes)
+            box2.refresh()
+            chInput= stdsrc.getch()
+            while True:
+                if chInput == 127:
+                    notes = notes[:-1]
+                    box2.addstr(12 , editw, ("Notes: " +notes + "  "))
+                elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                    break
+                else:
+                    strInput = chr(int(chInput))
+                    notes = str(notes) + str(strInput)
+                    curentnotesoutput = ("Notes: " + notes)
+                    box2.addstr(12 , editw, curentnotesoutput)
+                box2.refresh()
+                chInput= stdsrc.getch()
+
+            if deposit:
+                amount = int(amount)
+            else:
+                amount = -int(amount)
+
+            # remplace the transaction with a new one
+            with open('transactions.csv', 'r') as f:
+                reader = csv.reader(f)
+                data = list(reader)
+            with open('transactions.csv', 'w', newline='') as f:
+                writer = csv.writer(f)
+                for row in data:
+                    if row != data[numberofrow]:
+                        writer.writerow(row)
+                    else:
+                        writer.writerow([amount, date, notes])
+            box2.attron(curses.color_pair(1))
+            box2.addstr(boxh//2, boxw//2-len("Transaction Edited"), "Transaction Edited")
+            box2.attroff(curses.color_pair(1))
+            stdsrc.refresh()
+            box2.refresh()
+            time.sleep(1)
+            stdsrc.clear()
+            stdsrc.refresh()
+            box2.clear()
+            del box2
+        
+        
+
+    def editviewtransactionrecord(stdsrc):
+        h, w = stdsrc.getmaxyx()
+        box3 = curses.newwin(h//3, w//4, h//3, 0)
+        box3.box()
+        box3.attron(curses.color_pair(2))
+        # add in the midle of the box
+        boxtextmessage = "Help"
+        box3.addstr(0, (w//4)//2 - len(boxtextmessage)//2, boxtextmessage)
+        box3.refresh()
+        stdsrc.refresh()
+        box3.addstr(2, 2, "Tips:")
+        box3.refresh()
+        time.sleep(0.3)
+        box3.addstr(4, 2, "1. Use the arrows to navigate")
+        box3.refresh()
+        time.sleep(0.3)
+        box3.addstr(6, 2, "2. Use enter to select")
+        box3.refresh()
+        time.sleep(0.3)
+        box3.addstr(8, 2, "3. Use backspace to go back to the menu")
+        box3.refresh()
+        time.sleep(0.3)
+
+        while True:
+            h, w = stdsrc.getmaxyx()
+            box1 = curses.newwin(h, w//2, 0, w//4)
+            box1.box()
+            # add in the midle of the box
+            boxtextmessage = "Edit Transaction Record"
+            box1.addstr(0, w//4 - len(boxtextmessage)//2, boxtextmessage)
+            box1.refresh()
+            stdsrc.refresh()
+            # getting the amount of items in the transaction file
+            with open('transactions.csv', 'r') as f:
+                reader = csv.reader(f)
+                data = list(reader)
+                amountofitems = len(data)
+            current_rox_idx = 0
+            def printlist(current_rox_idx, amountofitems, notloaded):
+                box1.box()
+                box1.addstr(0, w//4 - len(boxtextmessage)//2, boxtextmessage)
+                box1.refresh()
+                # printing the list of transactions
+                with open('transactions.csv', 'r') as f:
+                    reader = csv.reader(f)
+                    data = list(reader)
+                    amountofitems = len(data)
+                    for i in range(0, amountofitems):
+                        if i == current_rox_idx:
+                            box1.attron(curses.color_pair(1))
+                            box1.addstr(i+2, 2,(data[amountofitems-i-1][2]+ "  "))
+                            box1.attroff(curses.color_pair(1))
+                        else:
+                            box1.addstr(i+2, 2, ("  "+data[amountofitems-i-1][2]))
+                        if notloaded:
+                            time.sleep(0.1)
+                            box1.refresh()
+                box1.refresh()
+                
+            current_row_idx = 0
+            printlist(current_rox_idx, amountofitems, True)
+            while True:
+                box3.refresh()
+                key = stdsrc.getch()
+                if key == curses.KEY_UP and current_row_idx > 0:
+                    current_row_idx -= 1
+                elif key == curses.KEY_DOWN and current_row_idx < amountofitems-1:
+                    current_row_idx += 1
+                elif key == curses.KEY_ENTER or key in [10, 13]:
+                    numberofrow = amountofitems - current_row_idx - 1
+                    transedit(stdsrc, numberofrow)
+                    box1.clear()
+                elif key == 127:
+                    box1.clear()
+                    del box1
+                    exit = True
+                    break
+                printlist(current_row_idx, amountofitems, False)
+            if exit:
+                break
+
+                
+            
+            
+
 
         
     # Refresh the screen
@@ -202,15 +694,17 @@ def main(stdsrc):
             elif key == curses.KEY_ENTER or key in [10, 13]:
                 if current_row_idx == 0:
                     addtransaction(stdsrc)
-                if current_row_idx == 4:
+                elif current_row_idx == 1:
+                    editviewtransactionrecord(stdsrc)
+                if current_row_idx == 2:
                     stdscr.clear()
                     current_row_idx = 0
                     # Print the main menu
                     main_menu(stdsrc, current_row_idx)
                     break
-                stdsrc.addstr(0, 0, "You pressed {}".format(tranmenu[current_row_idx]))
                 stdsrc.refresh()
-                stdsrc.getch()
+
+            stdsrc.clear()
             func1(stdsrc, current_row_idx)
 
     # Wait for any key to be pressed
@@ -312,11 +806,14 @@ def main(stdsrc):
         elif key == curses.KEY_ENTER or key in [10, 13]:
             if current_row_idx == 0:
                 firstoptionmenu(stdsrc)
-            if current_row_idx == 4:
+            elif current_row_idx == 1:
+                stdsrc.clear()
+                graph(stdsrc)
+            elif current_row_idx == 2:
+                cryptovalue(stdsrc)
+            elif current_row_idx == 4:
                 screen_exit(stdsrc)
-            stdsrc.addstr(0, 0, "You pressed {}".format(menu[current_row_idx]))
             stdsrc.refresh()
-            stdsrc.getch()
         main_menu(stdsrc, current_row_idx)
         
 def login(stdsrc):
@@ -781,7 +1278,7 @@ def encrypt_file(stdsrc):
 def func1(stdsrc, current_row_idx):
     
     #Transaction managment
-    tranmenu = ["Add Transaction", "Remove Transaction", "Edit Transaction", "View Transactions", "Back"]
+    tranmenu = ["Add Transaction", "View and edit Transactions", "Back"]
     
      # Set up screen size
     h, w = stdsrc.getmaxyx()
