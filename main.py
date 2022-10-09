@@ -4,14 +4,8 @@ import curses.textpad
 print("imported curses.textpad")
 import datetime
 print("imported datetime")
-from email.message import Message
-print("imported email.message")
-from re import A
-print("imported re")
 import time
 print("imported time")
-from xml.dom.expatbuilder import parseString
-print("imported xml.dom.expatbuilder")
 from library import *
 print("imported external libraries")
 from cryptography.fernet import Fernet
@@ -133,9 +127,222 @@ def main(stdsrc):
 
             stdsrc.clear()
             func2(stdsrc, current_row_idx)
-       
+
+    def func4(stdsrc, current_row_idx, menu, selectedbox):
+        stdsrc.clear()
+        stdsrc.refresh()
+        selectedbox.refresh()
+        selectedbox.attron(curses.color_pair(2))
+        hbox, wbox = selectedbox.getmaxyx()
+        for idx, row in enumerate(menu):
+            x = wbox//2 - len(row)//2
+            y = hbox//2 - len(menu)//2 + idx
+            if idx == current_row_idx:
+                selectedbox.attron(curses.color_pair(3))
+                selectedbox.addstr(y, x, row)
+                selectedbox.attroff(curses.color_pair(3))
+            else:
+                selectedbox.attron(curses.color_pair(2))
+                selectedbox.addstr(y, x, row)
+        selectedbox.refresh()
+        
+
+    def change_password(stdsrc):
+        stdsrc.clear()
+        stdsrc.refresh()
+        # create a new box for the password
+        h, w = stdsrc.getmaxyx()
+        selectedbox = curses.newwin(3, 50, h//2-2, w//2-25)
+        selectedbox.box()
+        selectedbox.refresh()
+        notes = str("")
+        stdsrc.attron(curses.color_pair(2))
+        stdsrc.addstr(h//2 -1 , w//2 - len(boxtextmessage)//2-12, "New Password: ")
+        stdsrc.refresh()
+        chInput= stdsrc.getch()
+        while True:
+            if chInput == 127:
+                notes = notes[:-1]
+                stdsrc.addstr(h//2 -1, w//2 - len(boxtextmessage)//2-12, ("New Password: " +notes + "  "))
+            elif chInput == curses.KEY_ENTER or chInput in [10, 13]:
+                break
+            else:
+                strInput = chr(int(chInput))
+                notes = str(notes) + str(strInput)
+                curentnotesoutput = ("New Password: " + notes)
+                stdsrc.addstr(h//2 -1, w//2 - len(boxtextmessage)//2-12, curentnotesoutput)
+            stdsrc.refresh()
+            chInput= stdsrc.getch()
+        stdsrc.clear()
+        stdsrc.refresh()
+        newpassword = notes
+        localusername = username
+        with open("user.csv", "r") as file:
+            database = file.readlines()
+        salty = "(╯°□°）╯︵ ┻━┻"
+        to_hash = localusername + newpassword + salty
+        hashed_password = hmac.new(''.encode(), to_hash.encode(),  'sha512').hexdigest()
+        with open("user.csv", "w") as file:
+            for line in database:
+                if localusername in line:
+                    file.write(localusername + "," + hashed_password + "\n")
+                else:
+                    file.write(line)
+    
+    def changetheme(stdsrc):
+        stdsrc.clear()
+        stdsrc.refresh()
+        color = thememenu(stdsrc)
+        if color == "RED":
+            curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_RED)
+            curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+        if color == "GREEN":
+            curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
+            curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        if color == "YELLOW":
+            curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_YELLOW)
+            curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        if color == "BLUE":
+            curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_BLUE)
+            curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
+        if color == "MAGENTA":
+            curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_MAGENTA)
+            curses.init_pair(2, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+        if color == "CYAN":
+            curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
+            curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        if color == "WHITE":
+            curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+            curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
+
+    def thememenu(stdsrc):
+        availablecolors = ["RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE"]
+        stdsrc.clear()
+        h, w = stdsrc.getmaxyx()
+        selectedbox = curses.newwin(h, 30, 0, w//2-15)
+        selectedbox.box()
+        selectedbox.refresh()
+        stdsrc.refresh()
+        current_row_idx = 0
+        func4(stdsrc, current_row_idx, availablecolors, selectedbox)
+        key = stdsrc.getch()
+        while True:
+            if key == curses.KEY_UP and current_row_idx > 0:
+                current_row_idx -= 1
+            elif key == curses.KEY_DOWN and current_row_idx < len(availablecolors)-1:
+                current_row_idx += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                if current_row_idx == 0:
+                    return "RED"
+                elif current_row_idx == 1:
+                    return "GREEN"
+                elif current_row_idx == 2:
+                    return "YELLOW"
+                elif current_row_idx == 3:
+                    return "BLUE"
+                elif current_row_idx == 4:
+                    return "MAGENTA"
+                elif current_row_idx == 5:
+                    return "CYAN"
+                elif current_row_idx == 6:
+                    return "WHITE"
+                stdsrc.refresh()
+
+            stdsrc.clear()
+            func4(stdsrc, current_row_idx, availablecolors, selectedbox)
+            key = stdsrc.getch()
+
+
+
     def settings(stdsrc):
-        pass
+        settingsmenu = ["Change Password", "Change Color Theme", "AUTODESTRUCTION", "Back"]
+        stdsrc.clear()
+        stdsrc.refresh()
+        #add a box with a menu for chosing the option
+        # Setup a box
+        h, w = stdsrc.getmaxyx()
+        boxtextmessage = ("┌────────────Settings────────────┐")
+        box6 = curses.newwin(10, len(boxtextmessage), h//2 - 5, w//2 - len(boxtextmessage)//2)
+        box6.box()    
+        box6.addstr(boxtextmessage)
+        stdsrc.refresh()
+        box6.refresh()
+        #add a menu
+        current_row_idx = 0
+        func4(stdsrc, current_row_idx, settingsmenu, box6)
+        key = stdsrc.getch()
+        while True:
+            if key == curses.KEY_UP and current_row_idx > 0:
+                current_row_idx -= 1
+            elif key == curses.KEY_DOWN and current_row_idx < len(settingsmenu)-1:
+                current_row_idx += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                if current_row_idx == 0:
+                    change_password(stdsrc)
+                elif current_row_idx == 1:
+                    changetheme(stdsrc)
+                elif current_row_idx == 2:
+                    stdsrc.clear()
+                    stdsrc.refresh()
+                    #ask for confirmation
+                    boxtextmessage = ("┌────────────Settings────────────┐")
+                    box6 = curses.newwin(10, len(boxtextmessage), h//2 - 5, w//2 - len(boxtextmessage)//2)
+                    box6.box()
+                    box6.addstr(boxtextmessage)
+                    stdsrc.refresh()
+                    box6.refresh()
+                    box6.addstr(2, 2, "Are you sure you want to delete all your data?")
+                    box6.addstr(3, 2, "This action cannot be undone.")
+                    box6.addstr(4, 2, "Press Y to confirm, N to cancel.")
+                    box6.refresh()
+                    key = stdsrc.getch()
+                    while True:
+                        if key == ord("y"):
+                            #delete all data
+                            #erase transactions.csv
+                            with open("transactions.csv", "w") as file:
+                                file.write("")
+                            #erase user.csv
+                            with open("user.csv", "w") as file:
+                                file.write("")
+                            #erase filekey.key
+                            with open("filekey.key", "w") as file:
+                                file.write("")
+                            #erase library.py
+                            with open("library.py", "w") as file:
+                                file.write("")
+                            #erase main.py
+                            with open("main.py", "w") as file:
+                                file.write("")
+                            stdsrc.clear()
+                            stdsrc.refresh()
+                            boxtextmessage = ("┌────────────Settings────────────┐")
+                            box6 = curses.newwin(10, len(boxtextmessage), h//2 - 5, w//2 - len(boxtextmessage)//2)
+                            box6.box()
+                            box6.addstr(boxtextmessage)
+                            stdsrc.refresh()
+                            box6.refresh()
+                            box6.addstr(2, 2, "All data has been deleted.")
+                            box6.addstr(3, 2, "Press any key to continue.")
+                            box6.refresh()
+                            stdsrc.getch()
+                            break
+                        elif key == ord("n"):
+                            break
+                    
+                elif current_row_idx == 3:
+                    stdsrc.clear()
+                    break
+            stdsrc.clear()
+            func4(stdsrc, current_row_idx, settingsmenu, box6)
+            box6.refresh()
+            stdsrc.refresh()
+            key = stdsrc.getch()
+        
+
+
+
+
 
     def func2(stdsrc, current_row_idx):
         h, w = stdsrc.getmaxyx()
@@ -811,6 +1018,8 @@ def main(stdsrc):
                 graph(stdsrc)
             elif current_row_idx == 2:
                 cryptovalue(stdsrc)
+            elif current_row_idx == 3:
+                settings(stdsrc)
             elif current_row_idx == 4:
                 screen_exit(stdsrc)
             stdsrc.refresh()
@@ -829,6 +1038,7 @@ def login(stdsrc):
         box1.refresh()
     
         #Getting Username
+        global username 
         username = str("")
         stdsrc.addstr(h//2 - 3, w//2 - len(boxtextmessage)//2+2, "Username: ")
         stdsrc.refresh()
