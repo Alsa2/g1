@@ -1,25 +1,21 @@
-import curses
-import time
+#make a program that takes all the .jpg files in a folder and converts them to one pdf file
 
-curses.initscr()
+import os
+from PIL import Image
 
-def percentage():
-    win = curses.newwin(3, 32, 3, 30)
-    win.border(0)
-    loading = 0
-    while loading < 100:
-        loading += 1
-        time.sleep(0.03)
-        update_progress(win, loading)
+#make a list of all the files in the folder
+files = os.listdir()
 
-def update_progress(win, progress):
-    rangex = (30 / float(100)) * progress
-    pos = int(rangex)
-    display = '#'
-    if pos != 0:
-        win.addstr(1, pos, "{}".format(display))
-        win.refresh()
+#make a list of all the .jpg files in the folder
+jpgs = []
+for file in files:
+    if file.endswith('.jpg'):
+        jpgs.append(file)
 
-percentage()
+# sort the list of .jpg files
+jpgs.sort()
 
-curses.endwin()
+#convert the .jpg files to .pdf files
+for jpg in jpgs:
+    im = Image.open(jpg)
+    im.save(jpg[:-4] + '.pdf')
