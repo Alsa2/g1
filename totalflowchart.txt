@@ -1,0 +1,2519 @@
+op2=>operation: import curses
+sub4=>subroutine: print('imported curses')
+op6=>operation: import curses.textpad
+sub8=>subroutine: print('imported curses.textpad')
+op10=>operation: import datetime
+sub12=>subroutine: print('imported datetime')
+op14=>operation: import time
+sub16=>subroutine: print('imported time')
+op18=>operation: from library import *
+sub20=>subroutine: print('imported external libraries')
+op22=>operation: from cryptography.fernet import Fernet
+sub24=>subroutine: print('imported cryptography.fernet')
+op26=>operation: import csv
+sub28=>subroutine: print('imported csv')
+op30=>operation: import plotext as plt
+sub32=>subroutine: print('imported plotext')
+op34=>operation: import yfinance as yf
+sub36=>subroutine: print('imported yfinance')
+op38=>operation: menu = ['Transaction Managment', 'Record Graph', 'Crypto Value', 'Setting', 'Exit']
+op40=>operation: tranmenu = ['Add Transaction', 'View and edit Transactions', 'Back']
+op42=>operation: currencymenu = ['--USD--', '--EUR--', '--GBP--', '--JPY--', '--CNY--', 'Return']
+st45=>start: start main
+io47=>inputoutput: input: stdsrc
+sub50=>subroutine: curses.curs_set(0)
+sub52=>subroutine: curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
+sub54=>subroutine: curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+sub56=>subroutine: curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
+sub58=>subroutine: curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
+sub60=>subroutine: curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_RED)
+sub62=>subroutine: curses.color_pair(1)
+sub64=>subroutine: stdsrc.attron(curses.color_pair(1))
+op66=>operation: (h, w) = stdsrc.getmaxyx()
+op68=>operation: text = 'Welcome to your Crypto Wallet Records. Press q to quit and any other key to continue.'
+sub70=>subroutine: stdsrc.addstr((h // 2), ((w // 2) - (len(text) // 2)), text)
+sub72=>subroutine: stdsrc.attron(curses.color_pair(2))
+op74=>operation: win = curses.newwin((h - 2), (w - 2), 1, 1)
+sub76=>subroutine: stdsrc.box()
+st79=>start: start graph
+io81=>inputoutput: input: stdsrc
+op84=>operation: with open('transactions.csv', 'r') as f:
+    reader = csv.reader(f)
+    data = list(reader)
+    data.pop(2)
+    amounts = [int(i[0]) for i in data]
+    plt.date_form('Y/m/d')
+    dates = [i[1] for i in data]
+    dates = [i.split(' ')[0] for i in dates]
+    dates = [i.replace('-', '/') for i in dates]
+    prices = amounts
+    plt.axes_color('black')
+    plt.canvas_color('black')
+    plt.ticks_color('green')
+    plt.plot(dates, prices, color='green', label='Amount')
+    plt.title('Wallet Records')
+    plt.xlabel('Date')
+    plt.ylabel('Amount of transaction (press any key to continue)')
+    stdsrc.clear()
+    stdsrc.refresh()
+    curses.endwin()
+    plt.show()
+    stdsrc.getch()
+    plt.clear_figure()
+    plt.clear_terminal()
+    curses.initscr()
+e86=>end: end graph
+st90=>start: start currencyvalue
+io92=>inputoutput: input: stdsrc
+sub95=>subroutine: stdsrc.clear()
+op97=>operation: current_row_idx = 0
+sub99=>subroutine: stdsrc.refresh()
+sub101=>subroutine: func2(stdsrc, current_row_idx)
+op103=>operation: exitcondition = 0
+cond106=>condition: while (exitcondition != 1)
+op231=>operation: key = stdsrc.getch()
+cond234=>condition: if ((key == curses.KEY_UP) and (current_row_idx > 0))
+op238=>operation: current_row_idx -= 1
+sub347=>subroutine: stdsrc.clear()
+sub349=>subroutine: func2(stdsrc, current_row_idx)
+cond243=>condition: if ((key == curses.KEY_DOWN) and (current_row_idx < (len(currencymenu) - 1)))
+op247=>operation: current_row_idx += 1
+cond252=>condition: if ((key == curses.KEY_ENTER) or (key in [10, 13]))
+cond257=>condition: if (current_row_idx == 0)
+io264=>inputoutput: output:  'BTC-USD'
+e262=>end: end function return
+cond270=>condition: if (current_row_idx == 1)
+io277=>inputoutput: output:  'BTC-EUR'
+e275=>end: end function return
+cond283=>condition: if (current_row_idx == 2)
+io290=>inputoutput: output:  'BTC-GBP'
+e288=>end: end function return
+cond296=>condition: if (current_row_idx == 3)
+io303=>inputoutput: output:  'BTC-JPY'
+e301=>end: end function return
+cond309=>condition: if (current_row_idx == 4)
+io316=>inputoutput: output:  'BTC-CNY'
+e314=>end: end function return
+cond322=>condition: if (current_row_idx == 5)
+io329=>inputoutput: output:  'exit'
+e327=>end: end function return
+sub340=>subroutine: stdsrc.refresh()
+e353=>end: end currencyvalue
+st357=>start: start func4
+io359=>inputoutput: input: stdsrc, current_row_idx, menu, selectedbox
+sub362=>subroutine: stdsrc.clear()
+sub364=>subroutine: stdsrc.refresh()
+sub366=>subroutine: selectedbox.refresh()
+sub368=>subroutine: selectedbox.attron(curses.color_pair(2))
+op370=>operation: (hbox, wbox) = selectedbox.getmaxyx()
+cond373=>condition: for (idx, row) in enumerate(menu)
+op400=>operation: x = ((wbox // 2) - (len(row) // 2))
+op402=>operation: y = (((hbox // 2) - (len(menu) // 2)) + idx)
+cond405=>condition: if (idx == current_row_idx)
+sub409=>subroutine: selectedbox.attron(curses.color_pair(3))
+sub411=>subroutine: selectedbox.addstr(y, x, row)
+sub413=>subroutine: selectedbox.attroff(curses.color_pair(3))
+sub417=>subroutine: selectedbox.attron(curses.color_pair(2))
+sub419=>subroutine: selectedbox.addstr(y, x, row)
+sub424=>subroutine: selectedbox.refresh()
+e426=>end: end func4
+st430=>start: start change_password
+io432=>inputoutput: input: stdsrc
+sub435=>subroutine: stdsrc.clear()
+sub437=>subroutine: stdsrc.refresh()
+op439=>operation: (h, w) = stdsrc.getmaxyx()
+op441=>operation: selectedbox = curses.newwin(3, 50, ((h // 2) - 2), ((w // 2) - 25))
+sub443=>subroutine: selectedbox.box()
+sub445=>subroutine: selectedbox.refresh()
+op447=>operation: notes = str('')
+sub449=>subroutine: stdsrc.attron(curses.color_pair(2))
+sub451=>subroutine: stdsrc.addstr(((h // 2) - 1), (((w // 2) - (len(boxtextmessage) // 2)) - 12), 'New Password: ')
+sub453=>subroutine: stdsrc.refresh()
+op455=>operation: chInput = stdsrc.getch()
+cond458=>condition: while True
+cond498=>condition: if (chInput == 127)
+op502=>operation: notes = notes[:(- 1)]
+sub504=>subroutine: stdsrc.addstr(((h // 2) - 1), (((w // 2) - (len(boxtextmessage) // 2)) - 12), (('New Password: ' + notes) + '  '))
+sub527=>subroutine: stdsrc.refresh()
+op529=>operation: chInput = stdsrc.getch()
+cond509=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+sub513=>subroutine: break
+op517=>operation: strInput = chr(int(chInput))
+op519=>operation: notes = (str(notes) + str(strInput))
+op521=>operation: curentnotesoutput = ('New Password: ' + notes)
+sub523=>subroutine: stdsrc.addstr(((h // 2) - 1), (((w // 2) - (len(boxtextmessage) // 2)) - 12), curentnotesoutput)
+sub533=>subroutine: stdsrc.clear()
+sub535=>subroutine: stdsrc.refresh()
+op537=>operation: newpassword = notes
+op539=>operation: localusername = username
+op541=>operation: with open('user.csv', 'r') as file:
+    database = file.readlines()
+op543=>operation: salty = '(╯°□°）╯︵ ┻━┻'
+op545=>operation: to_hash = ((localusername + newpassword) + salty)
+op547=>operation: hashed_password = hmac.new(''.encode(), to_hash.encode(), 'sha512').hexdigest()
+op549=>operation: with open('user.csv', 'w') as file:
+    for line in database:
+        if (localusername in line):
+            file.write((((localusername + ',') + hashed_password) + '\n'))
+        else:
+            file.write(line)
+e551=>end: end change_password
+st555=>start: start changetheme
+io557=>inputoutput: input: stdsrc
+sub560=>subroutine: stdsrc.clear()
+sub562=>subroutine: stdsrc.refresh()
+op564=>operation: color = thememenu(stdsrc)
+cond567=>condition: if (color == 'RED')
+sub571=>subroutine: curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_RED)
+sub573=>subroutine: curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+cond579=>condition: if (color == 'GREEN')
+sub583=>subroutine: curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
+sub585=>subroutine: curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+cond591=>condition: if (color == 'YELLOW')
+sub595=>subroutine: curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_YELLOW)
+sub597=>subroutine: curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+cond603=>condition: if (color == 'BLUE')
+sub607=>subroutine: curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_BLUE)
+sub609=>subroutine: curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
+cond615=>condition: if (color == 'MAGENTA')
+sub619=>subroutine: curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_MAGENTA)
+sub621=>subroutine: curses.init_pair(2, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+cond627=>condition: if (color == 'CYAN')
+sub631=>subroutine: curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
+sub633=>subroutine: curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+cond639=>condition: if (color == 'WHITE')
+sub643=>subroutine: curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+sub645=>subroutine: curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
+e650=>end: end changetheme
+st654=>start: start thememenu
+io656=>inputoutput: input: stdsrc
+op659=>operation: availablecolors = ['RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE']
+sub661=>subroutine: stdsrc.clear()
+op663=>operation: (h, w) = stdsrc.getmaxyx()
+op665=>operation: selectedbox = curses.newwin(h, 30, 0, ((w // 2) - 15))
+sub667=>subroutine: selectedbox.box()
+sub669=>subroutine: selectedbox.refresh()
+sub671=>subroutine: stdsrc.refresh()
+op673=>operation: current_row_idx = 0
+sub675=>subroutine: func4(stdsrc, current_row_idx, availablecolors, selectedbox)
+op677=>operation: key = stdsrc.getch()
+cond680=>condition: while True
+cond820=>condition: if ((key == curses.KEY_UP) and (current_row_idx > 0))
+op824=>operation: current_row_idx -= 1
+sub947=>subroutine: stdsrc.clear()
+sub949=>subroutine: func4(stdsrc, current_row_idx, availablecolors, selectedbox)
+op951=>operation: key = stdsrc.getch()
+cond829=>condition: if ((key == curses.KEY_DOWN) and (current_row_idx < (len(availablecolors) - 1)))
+op833=>operation: current_row_idx += 1
+cond838=>condition: if ((key == curses.KEY_ENTER) or (key in [10, 13]))
+cond843=>condition: if (current_row_idx == 0)
+io850=>inputoutput: output:  'RED'
+e848=>end: end function return
+cond856=>condition: if (current_row_idx == 1)
+io863=>inputoutput: output:  'GREEN'
+e861=>end: end function return
+cond869=>condition: if (current_row_idx == 2)
+io876=>inputoutput: output:  'YELLOW'
+e874=>end: end function return
+cond882=>condition: if (current_row_idx == 3)
+io889=>inputoutput: output:  'BLUE'
+e887=>end: end function return
+cond895=>condition: if (current_row_idx == 4)
+io902=>inputoutput: output:  'MAGENTA'
+e900=>end: end function return
+cond908=>condition: if (current_row_idx == 5)
+io915=>inputoutput: output:  'CYAN'
+e913=>end: end function return
+cond921=>condition: if (current_row_idx == 6)
+io928=>inputoutput: output:  'WHITE'
+e926=>end: end function return
+sub940=>subroutine: stdsrc.refresh()
+e955=>end: end thememenu
+st959=>start: start settings
+io961=>inputoutput: input: stdsrc
+op964=>operation: settingsmenu = ['Change Password', 'Change Color Theme', 'AUTODESTRUCTION', 'Back']
+sub966=>subroutine: stdsrc.clear()
+sub968=>subroutine: stdsrc.refresh()
+op970=>operation: (h, w) = stdsrc.getmaxyx()
+op972=>operation: boxtextmessage = '┌────────────Settings────────────┐'
+op974=>operation: box6 = curses.newwin(10, len(boxtextmessage), ((h // 2) - 5), ((w // 2) - (len(boxtextmessage) // 2)))
+sub976=>subroutine: box6.box()
+sub978=>subroutine: box6.addstr(boxtextmessage)
+sub980=>subroutine: stdsrc.refresh()
+sub982=>subroutine: box6.refresh()
+op984=>operation: current_row_idx = 0
+sub986=>subroutine: func4(stdsrc, current_row_idx, settingsmenu, box6)
+op988=>operation: key = stdsrc.getch()
+cond991=>condition: while True
+cond1219=>condition: if ((key == curses.KEY_UP) and (current_row_idx > 0))
+op1223=>operation: current_row_idx -= 1
+sub1430=>subroutine: stdsrc.clear()
+sub1432=>subroutine: func4(stdsrc, current_row_idx, settingsmenu, box6)
+sub1434=>subroutine: box6.refresh()
+sub1436=>subroutine: stdsrc.refresh()
+op1438=>operation: key = stdsrc.getch()
+cond1228=>condition: if ((key == curses.KEY_DOWN) and (current_row_idx < (len(settingsmenu) - 1)))
+op1232=>operation: current_row_idx += 1
+cond1237=>condition: if ((key == curses.KEY_ENTER) or (key in [10, 13]))
+cond1242=>condition: if (current_row_idx == 0)
+sub1246=>subroutine: change_password(stdsrc)
+cond1251=>condition: if (current_row_idx == 1)
+sub1255=>subroutine: changetheme(stdsrc)
+cond1260=>condition: if (current_row_idx == 2)
+sub1264=>subroutine: stdsrc.clear()
+sub1266=>subroutine: stdsrc.refresh()
+op1268=>operation: boxtextmessage = '┌────────────Settings────────────┐'
+op1270=>operation: box6 = curses.newwin(10, len(boxtextmessage), ((h // 2) - 5), ((w // 2) - (len(boxtextmessage) // 2)))
+sub1272=>subroutine: box6.box()
+sub1274=>subroutine: box6.addstr(boxtextmessage)
+sub1276=>subroutine: stdsrc.refresh()
+sub1278=>subroutine: box6.refresh()
+sub1280=>subroutine: box6.addstr(2, 2, 'Are you sure you want to delete all your data?')
+sub1282=>subroutine: box6.addstr(3, 2, 'This action cannot be undone.')
+sub1284=>subroutine: box6.addstr(4, 2, 'Press Y to confirm, N to cancel.')
+sub1286=>subroutine: box6.refresh()
+op1288=>operation: key = stdsrc.getch()
+cond1291=>condition: while True
+cond1352=>condition: if (key == ord('y'))
+op1356=>operation: with open('transactions.csv', 'w') as file:
+    file.write('')
+op1358=>operation: with open('user.csv', 'w') as file:
+    file.write('')
+op1360=>operation: with open('filekey.key', 'w') as file:
+    file.write('')
+op1362=>operation: with open('library.py', 'w') as file:
+    file.write('')
+op1364=>operation: with open('main.py', 'w') as file:
+    file.write('')
+sub1366=>subroutine: stdsrc.clear()
+sub1368=>subroutine: stdsrc.refresh()
+op1370=>operation: boxtextmessage = '┌────────────Settings────────────┐'
+op1372=>operation: box6 = curses.newwin(10, len(boxtextmessage), ((h // 2) - 5), ((w // 2) - (len(boxtextmessage) // 2)))
+sub1374=>subroutine: box6.box()
+sub1376=>subroutine: box6.addstr(boxtextmessage)
+sub1378=>subroutine: stdsrc.refresh()
+sub1380=>subroutine: box6.refresh()
+sub1382=>subroutine: box6.addstr(2, 2, 'All data has been deleted.')
+sub1384=>subroutine: box6.addstr(3, 2, 'Press any key to continue.')
+sub1386=>subroutine: box6.refresh()
+sub1388=>subroutine: stdsrc.getch()
+sub1390=>subroutine: break
+cond1395=>operation: break if  (key == ord('n'))
+cond1411=>condition: if (current_row_idx == 3)
+sub1415=>subroutine: stdsrc.clear()
+sub1417=>subroutine: break
+e1442=>end: end settings
+st1446=>start: start func2
+io1448=>inputoutput: input: stdsrc, current_row_idx
+op1451=>operation: (h, w) = stdsrc.getmaxyx()
+cond1454=>condition: for (idx, row) in enumerate(currencymenu)
+op1479=>operation: x = ((w // 2) - (len(row) // 2))
+op1481=>operation: y = (((h // 2) - (len(currencymenu) // 2)) + currencymenu.index(row))
+cond1484=>condition: if (idx == current_row_idx)
+sub1488=>subroutine: stdsrc.attron(curses.color_pair(3))
+sub1490=>subroutine: stdsrc.addstr(y, x, row)
+sub1492=>subroutine: stdsrc.attron(curses.color_pair(1))
+sub1496=>subroutine: stdsrc.addstr(y, x, row)
+sub1501=>subroutine: stdsrc.refresh()
+e1503=>end: end func2
+st1507=>start: start cryptovalue
+io1509=>inputoutput: input: stdsrc
+op1512=>operation: (h, w) = stdsrc.getmaxyx()
+op1514=>operation: currency = currencyvalue(stdsrc)
+cond1517=>condition: if (currency == 'exit')
+sub1521=>subroutine: stdsrc.clear()
+e1524=>end: end function return
+sub1530=>subroutine: plt.date_form('d/m/Y')
+op1532=>operation: editw = 7
+sub1534=>subroutine: stdsrc.clear()
+sub1536=>subroutine: stdsrc.refresh()
+op1538=>operation: notes = ''
+op1540=>operation: box5 = curses.newwin((h // 5), (w // 2), ((h // 5) * 2), (w // 4))
+sub1542=>subroutine: box5.box()
+op1544=>operation: (box5height, box5weight) = box5.getmaxyx()
+op1546=>operation: box5height = (box5height // 2)
+sub1548=>subroutine: box5.addstr((box5height - 1), editw, ('Enter the start date (format: yyyy-mm-dd): ' + notes))
+sub1550=>subroutine: box5.refresh()
+op1552=>operation: chInput = stdsrc.getch()
+cond1555=>condition: while True
+cond1627=>condition: if (chInput == 127)
+op1631=>operation: notes = notes[:(- 1)]
+sub1633=>subroutine: box5.addstr((box5height - 1), editw, (('Enter the start date (format: yyyy-mm-dd): ' + notes) + '  '))
+sub1688=>subroutine: box5.refresh()
+op1690=>operation: chInput = stdsrc.getch()
+cond1638=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+cond1643=>condition: if (len(notes) == 10)
+cond1648=>condition: if ((notes[4] == '-') and (notes[7] == '-'))
+op1652=>operation: startdate = notes
+sub1654=>subroutine: box5.addstr(box5height, editw, '                                                        ')
+sub1656=>subroutine: break
+sub1661=>subroutine: box5.attron(curses.color_pair(5))
+sub1663=>subroutine: box5.addstr(box5height, editw, 'Check that the date is in the correct format (yyyy-mm-dd)')
+sub1665=>subroutine: box5.attroff(curses.color_pair(5))
+sub1669=>subroutine: box5.attron(curses.color_pair(5))
+sub1671=>subroutine: box5.addstr(box5height, editw, 'Invalid date format, please try again')
+sub1673=>subroutine: box5.attroff(curses.color_pair(5))
+op1678=>operation: strInput = chr(int(chInput))
+op1680=>operation: notes = (str(notes) + str(strInput))
+op1682=>operation: curentnotesoutput = ('Enter the start date (format: yyyy-mm-dd): ' + notes)
+sub1684=>subroutine: box5.addstr((box5height - 1), editw, curentnotesoutput)
+op1694=>operation: notes = ''
+sub1696=>subroutine: box5.addstr((box5height + 1), editw, ("Enter the end date (format: yyyy-mm-dd, enter 'today' for today's date): " + notes))
+sub1698=>subroutine: box5.refresh()
+op1700=>operation: chInput = stdsrc.getch()
+cond1703=>condition: while True
+cond1781=>condition: if (chInput == 127)
+op1785=>operation: notes = notes[:(- 1)]
+sub1787=>subroutine: box5.addstr((box5height + 1), editw, (("Enter the end date (format: yyyy-mm-dd, enter 'today' for today's date): " + notes) + '  '))
+sub1848=>subroutine: box5.refresh()
+op1850=>operation: chInput = stdsrc.getch()
+cond1792=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+cond1797=>condition: if (notes == 'today')
+op1801=>operation: enddate = datetime.datetime.today().strftime('%d/%m/%Y')
+sub1803=>subroutine: break
+cond1808=>condition: if (len(notes) == 10)
+cond1813=>condition: if ((notes[4] == '-') and (notes[7] == '-'))
+op1817=>operation: enddate = notes
+sub1819=>subroutine: break
+sub1824=>subroutine: box5.addstr(box5height, editw, '                                                        ')
+sub1828=>subroutine: box5.attron(curses.color_pair(5))
+sub1830=>subroutine: box5.addstr((box5height + 2), editw, 'Invalid date format, please try again')
+sub1832=>subroutine: box5.attroff(curses.color_pair(5))
+op1838=>operation: strInput = chr(int(chInput))
+op1840=>operation: notes = (str(notes) + str(strInput))
+op1842=>operation: curentnotesoutput = ("Enter the end date (format: yyyy-mm-dd, enter 'today' for today's date): " + notes)
+sub1844=>subroutine: box5.addstr((box5height + 1), editw, curentnotesoutput)
+op1854=>operation: enddate = notes
+cond1857=>operation: enddate = datetime.datetime.now().strftime('%Y-%m-%d') if  (enddate == 'today')
+op1867=>operation: del box5
+sub1869=>subroutine: stdsrc.clear()
+sub1871=>subroutine: stdsrc.refresh()
+sub1873=>subroutine: stdsrc.addstr((h // 2), (w // 2), 'Downloading flochart data...')
+sub1875=>subroutine: stdsrc.refresh()
+op1877=>operation: data = yf.download(currency, startdate, enddate)
+op1879=>operation: dates = plt.datetimes_to_string(data.index)
+sub1881=>subroutine: plt.candlestick(dates, data)
+sub1883=>subroutine: plt.axes_color('black')
+sub1885=>subroutine: plt.canvas_color('black')
+sub1887=>subroutine: plt.ticks_color('green')
+sub1889=>subroutine: plt.title(f'{currency} Graph')
+sub1891=>subroutine: plt.xlabel('Date')
+sub1893=>subroutine: plt.ylabel('Stock Price (press any key to exit')
+sub1895=>subroutine: stdsrc.clear()
+sub1897=>subroutine: stdsrc.refresh()
+sub1899=>subroutine: curses.endwin()
+sub1901=>subroutine: plt.show()
+sub1903=>subroutine: stdsrc.getch()
+sub1905=>subroutine: plt.clear_figure()
+sub1907=>subroutine: plt.clear_terminal()
+sub1909=>subroutine: curses.initscr()
+e1911=>end: end cryptovalue
+st1915=>start: start addtransaction
+io1917=>inputoutput: input: stdsrc
+sub1920=>subroutine: stdsrc.clear()
+cond1923=>condition: while True
+op2450=>operation: (h, w) = stdsrc.getmaxyx()
+op2452=>operation: boxtextmessage = 'Please Enter the Transaction Details'
+op2454=>operation: box1 = curses.newwin(10, len(boxtextmessage), ((h // 2) - 5), ((w // 2) - (len(boxtextmessage) // 2)))
+sub2456=>subroutine: box1.box()
+sub2458=>subroutine: box1.addstr(boxtextmessage)
+sub2460=>subroutine: stdsrc.refresh()
+sub2462=>subroutine: box1.refresh()
+op2464=>operation: idx = 0
+cond2467=>condition: while True
+cond2561=>condition: if (idx == 0)
+sub2565=>subroutine: box1.attron(curses.color_pair(1))
+sub2567=>subroutine: box1.addstr(2, 5, 'Deposit')
+sub2569=>subroutine: box1.attron(curses.color_pair(2))
+sub2571=>subroutine: box1.addstr(2, 23, 'Withdraw')
+sub2592=>subroutine: box1.refresh()
+op2594=>operation: key = stdsrc.getkey()
+cond2597=>condition: if (key == 'KEY_LEFT')
+op2601=>operation: idx = 0
+cond2606=>condition: if (key == 'KEY_RIGHT')
+op2610=>operation: idx = 1
+cond2615=>condition: if ((key == 'KEY_ENTER') or (key in ['\n', '\r']))
+cond2620=>condition: if (idx == 0)
+op2624=>operation: deposit = True
+sub2626=>subroutine: break
+cond2631=>condition: if (idx == 1)
+op2635=>operation: deposit = False
+sub2637=>subroutine: break
+cond2576=>condition: if (idx == 1)
+sub2580=>subroutine: box1.attron(curses.color_pair(2))
+sub2582=>subroutine: box1.addstr(2, 5, 'Deposit')
+sub2584=>subroutine: box1.attron(curses.color_pair(1))
+sub2586=>subroutine: box1.addstr(2, 23, 'Withdraw')
+sub2650=>subroutine: stdsrc.attron(curses.color_pair(2))
+op2652=>operation: amount = str('')
+sub2654=>subroutine: stdsrc.addstr(((h // 2) - 1), (((w // 2) - (len(boxtextmessage) // 2)) + 5), 'Amount: ')
+sub2656=>subroutine: stdsrc.refresh()
+op2658=>operation: chInput = stdsrc.getch()
+cond2661=>condition: while True
+sub2760=>subroutine: stdsrc.attron(curses.color_pair(2))
+cond2763=>condition: if (chInput == 127)
+op2767=>operation: amount = amount[:(- 1)]
+sub2769=>subroutine: stdsrc.addstr(((h // 2) - 1), (((w // 2) - (len(boxtextmessage) // 2)) + 5), (('Amount: ' + amount) + '  '))
+sub2850=>subroutine: stdsrc.refresh()
+op2852=>operation: chInput = stdsrc.getch()
+cond2774=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+cond2779=>condition: if (amount == '')
+op2783=>operation: amount = '0'
+sub2785=>subroutine: break
+cond2791=>condition: if (not amount.isdigit())
+sub2795=>subroutine: stdsrc.attron(curses.color_pair(4))
+sub2797=>subroutine: stdsrc.addstr((h // 2), (((w // 2) - (len(boxtextmessage) // 2)) + 5), 'Only digits allowed')
+sub2799=>subroutine: stdsrc.attroff(curses.color_pair(4))
+cond2804=>condition: if (amount[0] == '-')
+sub2808=>subroutine: stdsrc.attron(curses.color_pair(4))
+sub2810=>subroutine: stdsrc.addstr((h // 2), (((w // 2) - (len(boxtextmessage) // 2)) + 5), 'Only positive numbers allowed')
+sub2812=>subroutine: stdsrc.attroff(curses.color_pair(4))
+cond2817=>condition: if (int(amount) > 2147483647)
+sub2821=>subroutine: stdsrc.attron(curses.color_pair(4))
+sub2823=>subroutine: stdsrc.addstr((h // 2), (((w // 2) - (len(boxtextmessage) // 2)) + 5), 'How is it even possible ???)')
+sub2825=>subroutine: stdsrc.attroff(curses.color_pair(4))
+op2829=>operation: amount = int(amount)
+sub2831=>subroutine: break
+sub2838=>subroutine: stdsrc.attron(curses.color_pair(2))
+op2840=>operation: strInput = chr(int(chInput))
+op2842=>operation: amount = (str(amount) + str(strInput))
+op2844=>operation: curentamountoutput = ('Amount: ' + amount)
+sub2846=>subroutine: stdsrc.addstr(((h // 2) - 1), (((w // 2) - (len(boxtextmessage) // 2)) + 5), curentamountoutput)
+op2856=>operation: notes = str('')
+sub2858=>subroutine: stdsrc.addstr(((h // 2) + 1), (((w // 2) - (len(boxtextmessage) // 2)) + 5), 'Notes: ')
+sub2860=>subroutine: stdsrc.refresh()
+op2862=>operation: chInput = stdsrc.getch()
+cond2865=>condition: while True
+cond2905=>condition: if (chInput == 127)
+op2909=>operation: notes = notes[:(- 1)]
+sub2911=>subroutine: stdsrc.addstr(((h // 2) + 1), (((w // 2) - (len(boxtextmessage) // 2)) + 5), (('Notes: ' + notes) + '  '))
+sub2934=>subroutine: stdsrc.refresh()
+op2936=>operation: chInput = stdsrc.getch()
+cond2916=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+sub2920=>subroutine: break
+op2924=>operation: strInput = chr(int(chInput))
+op2926=>operation: notes = (str(notes) + str(strInput))
+op2928=>operation: curentnotesoutput = ('Notes: ' + notes)
+sub2930=>subroutine: stdsrc.addstr(((h // 2) + 1), (((w // 2) - (len(boxtextmessage) // 2)) + 5), curentnotesoutput)
+sub2940=>subroutine: stdsrc.clear()
+cond2943=>condition: if deposit
+op2947=>operation: amount = int(amount)
+op2954=>operation: with open('transactions.csv', 'a', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow([amount, datetime.datetime.now(), notes])
+sub2956=>subroutine: stdsrc.clear()
+sub2958=>subroutine: stdsrc.addstr((h // 2), (w // 2), 'Transaction Added')
+sub2960=>subroutine: stdsrc.refresh()
+sub2962=>subroutine: time.sleep(1)
+sub2964=>subroutine: stdsrc.clear()
+sub2966=>subroutine: stdsrc.refresh()
+sub2968=>subroutine: break
+op2951=>operation: amount = (- int(amount))
+e2974=>end: end addtransaction
+st2978=>start: start transedit
+io2980=>inputoutput: input: stdsrc, numberofrow
+op2983=>operation: (h, w) = stdsrc.getmaxyx()
+op2985=>operation: box2 = curses.newwin(h, (w // 4), 0, ((w // 4) * 3))
+sub2987=>subroutine: box2.box()
+op2989=>operation: boxtextmessage = 'Editing Transaction Record'
+sub2991=>subroutine: box2.addstr(0, ((w // 8) - (len(boxtextmessage) // 2)), boxtextmessage)
+sub2993=>subroutine: box2.refresh()
+sub2995=>subroutine: stdsrc.refresh()
+op2997=>operation: idx = 0
+op2999=>operation: (boxh, boxw) = box2.getmaxyx()
+op3001=>operation: editw = 7
+op3003=>operation: editd = ((boxw - len('Delete')) - 7)
+cond3006=>condition: while True
+cond3100=>condition: if (idx == 0)
+sub3104=>subroutine: box2.attron(curses.color_pair(1))
+sub3106=>subroutine: box2.addstr(2, editw, 'Edit')
+sub3108=>subroutine: box2.attron(curses.color_pair(2))
+sub3110=>subroutine: box2.addstr(2, editd, 'Delete')
+sub3131=>subroutine: box2.refresh()
+op3133=>operation: key = stdsrc.getkey()
+cond3136=>condition: if (key == 'KEY_LEFT')
+op3140=>operation: idx = 0
+cond3145=>condition: if (key == 'KEY_RIGHT')
+op3149=>operation: idx = 1
+cond3154=>condition: if ((key == 'KEY_ENTER') or (key in ['\n', '\r']))
+cond3159=>condition: if (idx == 0)
+op3163=>operation: delete = False
+sub3165=>subroutine: break
+cond3170=>condition: if (idx == 1)
+op3174=>operation: delete = True
+sub3176=>subroutine: break
+cond3115=>condition: if (idx == 1)
+sub3119=>subroutine: box2.attron(curses.color_pair(2))
+sub3121=>subroutine: box2.addstr(2, editw, 'Edit')
+sub3123=>subroutine: box2.attron(curses.color_pair(1))
+sub3125=>subroutine: box2.addstr(2, editd, 'Delete')
+cond3190=>condition: if delete
+op3194=>operation: with open('transactions.csv', 'r') as f:
+    reader = csv.reader(f)
+    data = list(reader)
+op3196=>operation: with open('transactions.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    for row in data:
+        if (row != data[numberofrow]):
+            writer.writerow(row)
+sub3198=>subroutine: box2.attron(curses.color_pair(4))
+sub3200=>subroutine: box2.addstr((boxh // 2), (((boxw // 2) - len('Transaction Deleted')) + 3), 'Transaction Deleted')
+sub3202=>subroutine: box2.attroff(curses.color_pair(4))
+sub3204=>subroutine: stdsrc.refresh()
+sub3206=>subroutine: box2.refresh()
+sub3208=>subroutine: time.sleep(1)
+sub3210=>subroutine: stdsrc.clear()
+sub3212=>subroutine: stdsrc.refresh()
+sub3214=>subroutine: box2.clear()
+op3216=>operation: del box2
+cond3222=>condition: if (not delete)
+op3226=>operation: boxtextmessage = 'Please Enter the Transaction Details'
+op3228=>operation: (boxh, boxw) = box2.getmaxyx()
+op3230=>operation: editw = 7
+op3232=>operation: editd = ((boxw - len('Withdraw')) - 7)
+sub3234=>subroutine: box2.addstr(6, ((w // 8) - (len(boxtextmessage) // 2)), boxtextmessage)
+sub3236=>subroutine: box2.box()
+sub3238=>subroutine: stdsrc.refresh()
+sub3240=>subroutine: box2.refresh()
+op3242=>operation: with open('transactions.csv', 'r') as f:
+    reader = csv.reader(f)
+    data = list(reader)
+op3244=>operation: transaction = data[numberofrow]
+op3246=>operation: date = transaction[1]
+op3248=>operation: amount = str(transaction[0])
+op3250=>operation: notes = transaction[2]
+cond3253=>condition: if (int(amount) > 0)
+op3257=>operation: idx = 0
+cond3265=>condition: while True
+cond3361=>condition: if (idx == 0)
+sub3365=>subroutine: box2.attron(curses.color_pair(1))
+sub3367=>subroutine: box2.addstr(8, editw, 'Deposit')
+sub3369=>subroutine: box2.attron(curses.color_pair(2))
+sub3371=>subroutine: box2.addstr(8, editd, 'Withdraw')
+sub3392=>subroutine: box2.attron(curses.color_pair(2))
+sub3394=>subroutine: box2.refresh()
+op3396=>operation: key = stdsrc.getkey()
+cond3399=>condition: if (key == 'KEY_LEFT')
+op3403=>operation: idx = 0
+cond3408=>condition: if (key == 'KEY_RIGHT')
+op3412=>operation: idx = 1
+cond3417=>condition: if ((key == 'KEY_ENTER') or (key in ['\n', '\r']))
+cond3422=>condition: if (idx == 0)
+op3426=>operation: deposit = True
+sub3428=>subroutine: break
+cond3433=>condition: if (idx == 1)
+op3437=>operation: deposit = False
+sub3439=>subroutine: break
+cond3376=>condition: if (idx == 1)
+sub3380=>subroutine: box2.attron(curses.color_pair(2))
+sub3382=>subroutine: box2.addstr(8, editw, 'Deposit')
+sub3384=>subroutine: box2.attron(curses.color_pair(1))
+sub3386=>subroutine: box2.addstr(8, editd, 'Withdraw')
+sub3452=>subroutine: stdsrc.attron(curses.color_pair(2))
+cond3455=>operation: amount = amount[1:] if  (not deposit)
+sub3465=>subroutine: box2.addstr(10, editw, ('Amount: ' + amount))
+sub3467=>subroutine: box2.refresh()
+op3469=>operation: chInput = stdsrc.getch()
+cond3472=>condition: while True
+sub3571=>subroutine: stdsrc.attron(curses.color_pair(2))
+cond3574=>condition: if (chInput == 127)
+op3578=>operation: amount = amount[:(- 1)]
+sub3580=>subroutine: box2.addstr(10, editw, (('Amount: ' + amount) + '  '))
+sub3661=>subroutine: box2.refresh()
+op3663=>operation: chInput = stdsrc.getch()
+cond3585=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+cond3590=>condition: if (amount == '')
+op3594=>operation: amount = '0'
+sub3596=>subroutine: break
+cond3602=>condition: if (not amount.isdigit())
+sub3606=>subroutine: box2.attron(curses.color_pair(4))
+sub3608=>subroutine: box2.addstr(11, editw, 'Only digits allowed')
+sub3610=>subroutine: box2.attroff(curses.color_pair(4))
+cond3615=>condition: if (amount[0] == '-')
+sub3619=>subroutine: box2.attron(curses.color_pair(4))
+sub3621=>subroutine: box2.addstr(11, editw, 'Only positive numbers allowed')
+sub3623=>subroutine: box2.attroff(curses.color_pair(4))
+cond3628=>condition: if (int(amount) > 2147483647)
+sub3632=>subroutine: box2.attron(curses.color_pair(4))
+sub3634=>subroutine: box2.addstr(11, editw, 'How is it even possible ???)')
+sub3636=>subroutine: box2.attroff(curses.color_pair(4))
+op3640=>operation: amount = int(amount)
+sub3642=>subroutine: break
+sub3649=>subroutine: box2.attron(curses.color_pair(2))
+op3651=>operation: strInput = chr(int(chInput))
+op3653=>operation: amount = (str(amount) + str(strInput))
+op3655=>operation: curentamountoutput = ('Amount: ' + amount)
+sub3657=>subroutine: box2.addstr(10, editw, curentamountoutput)
+sub3667=>subroutine: box2.addstr(11, 2, ((boxw - 4) * ' '))
+sub3669=>subroutine: box2.addstr(12, editw, ('Notes: ' + notes))
+sub3671=>subroutine: box2.refresh()
+op3673=>operation: chInput = stdsrc.getch()
+cond3676=>condition: while True
+cond3716=>condition: if (chInput == 127)
+op3720=>operation: notes = notes[:(- 1)]
+sub3722=>subroutine: box2.addstr(12, editw, (('Notes: ' + notes) + '  '))
+sub3745=>subroutine: box2.refresh()
+op3747=>operation: chInput = stdsrc.getch()
+cond3727=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+sub3731=>subroutine: break
+op3735=>operation: strInput = chr(int(chInput))
+op3737=>operation: notes = (str(notes) + str(strInput))
+op3739=>operation: curentnotesoutput = ('Notes: ' + notes)
+sub3741=>subroutine: box2.addstr(12, editw, curentnotesoutput)
+cond3752=>condition: if deposit
+op3756=>operation: amount = int(amount)
+op3763=>operation: with open('transactions.csv', 'r') as f:
+    reader = csv.reader(f)
+    data = list(reader)
+op3765=>operation: with open('transactions.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    for row in data:
+        if (row != data[numberofrow]):
+            writer.writerow(row)
+        else:
+            writer.writerow([amount, date, notes])
+sub3767=>subroutine: box2.attron(curses.color_pair(1))
+sub3769=>subroutine: box2.addstr((boxh // 2), ((boxw // 2) - len('Transaction Edited')), 'Transaction Edited')
+sub3771=>subroutine: box2.attroff(curses.color_pair(1))
+sub3773=>subroutine: stdsrc.refresh()
+sub3775=>subroutine: box2.refresh()
+sub3777=>subroutine: time.sleep(1)
+sub3779=>subroutine: stdsrc.clear()
+sub3781=>subroutine: stdsrc.refresh()
+sub3783=>subroutine: box2.clear()
+op3785=>operation: del box2
+e3790=>end: end transedit
+st3794=>start: start editviewtransactionrecord
+io3796=>inputoutput: input: stdsrc
+op3799=>operation: (h, w) = stdsrc.getmaxyx()
+op3801=>operation: box3 = curses.newwin((h // 3), (w // 4), (h // 3), 0)
+sub3803=>subroutine: box3.box()
+sub3805=>subroutine: box3.attron(curses.color_pair(2))
+op3807=>operation: boxtextmessage = 'Help'
+sub3809=>subroutine: box3.addstr(0, (((w // 4) // 2) - (len(boxtextmessage) // 2)), boxtextmessage)
+sub3811=>subroutine: box3.refresh()
+sub3813=>subroutine: stdsrc.refresh()
+sub3815=>subroutine: box3.addstr(2, 2, 'Tips:')
+sub3817=>subroutine: box3.refresh()
+sub3819=>subroutine: time.sleep(0.3)
+sub3821=>subroutine: box3.addstr(4, 2, '1. Use the arrows to navigate')
+sub3823=>subroutine: box3.refresh()
+sub3825=>subroutine: time.sleep(0.3)
+sub3827=>subroutine: box3.addstr(6, 2, '2. Use enter to select')
+sub3829=>subroutine: box3.refresh()
+sub3831=>subroutine: time.sleep(0.3)
+sub3833=>subroutine: box3.addstr(8, 2, '3. Use backspace to go back to the menu')
+sub3835=>subroutine: box3.refresh()
+sub3837=>subroutine: time.sleep(0.3)
+cond3840=>condition: while True
+op4017=>operation: (h, w) = stdsrc.getmaxyx()
+op4019=>operation: box1 = curses.newwin(h, (w // 2), 0, (w // 4))
+sub4021=>subroutine: box1.box()
+op4023=>operation: boxtextmessage = 'Edit Transaction Record'
+sub4025=>subroutine: box1.addstr(0, ((w // 4) - (len(boxtextmessage) // 2)), boxtextmessage)
+sub4027=>subroutine: box1.refresh()
+sub4029=>subroutine: stdsrc.refresh()
+op4031=>operation: with open('transactions.csv', 'r') as f:
+    reader = csv.reader(f)
+    data = list(reader)
+    amountofitems = len(data)
+op4033=>operation: current_rox_idx = 0
+st4036=>start: start printlist
+io4038=>inputoutput: input: current_rox_idx, amountofitems, notloaded
+sub4041=>subroutine: box1.box()
+sub4043=>subroutine: box1.addstr(0, ((w // 4) - (len(boxtextmessage) // 2)), boxtextmessage)
+sub4045=>subroutine: box1.refresh()
+op4047=>operation: with open('transactions.csv', 'r') as f:
+    reader = csv.reader(f)
+    data = list(reader)
+    amountofitems = len(data)
+    for i in range(0, amountofitems):
+        if (i == current_rox_idx):
+            box1.attron(curses.color_pair(1))
+            box1.addstr((i + 2), 2, (data[((amountofitems - i) - 1)][2] + '  '))
+            box1.attroff(curses.color_pair(1))
+        else:
+            box1.addstr((i + 2), 2, ('  ' + data[((amountofitems - i) - 1)][2]))
+        if notloaded:
+            time.sleep(0.1)
+            box1.refresh()
+sub4049=>subroutine: box1.refresh()
+e4051=>end: end printlist
+op4054=>operation: current_row_idx = 0
+sub4056=>subroutine: printlist(current_rox_idx, amountofitems, True)
+cond4059=>condition: while True
+sub4120=>subroutine: box3.refresh()
+op4122=>operation: key = stdsrc.getch()
+cond4125=>condition: if ((key == curses.KEY_UP) and (current_row_idx > 0))
+op4129=>operation: current_row_idx -= 1
+sub4174=>subroutine: printlist(current_row_idx, amountofitems, False)
+cond4134=>condition: if ((key == curses.KEY_DOWN) and (current_row_idx < (amountofitems - 1)))
+op4138=>operation: current_row_idx += 1
+cond4143=>condition: if ((key == curses.KEY_ENTER) or (key in [10, 13]))
+op4147=>operation: numberofrow = ((amountofitems - current_row_idx) - 1)
+sub4149=>subroutine: transedit(stdsrc, numberofrow)
+sub4151=>subroutine: box1.clear()
+cond4156=>condition: if (key == 127)
+sub4160=>subroutine: box1.clear()
+op4162=>operation: del box1
+op4164=>operation: exit = True
+sub4166=>subroutine: break
+cond4179=>operation: break if  exit
+e4191=>end: end editviewtransactionrecord
+sub4194=>subroutine: win.box()
+sub4196=>subroutine: stdsrc.refresh()
+st4199=>start: start firstoptionmenu
+io4201=>inputoutput: input: stdscr
+sub4204=>subroutine: stdsrc.clear()
+op4206=>operation: current_row_idx = 0
+sub4208=>subroutine: stdsrc.refresh()
+sub4210=>subroutine: func1(stdsrc, current_row_idx)
+op4212=>operation: exitcondition = 0
+cond4215=>condition: while (exitcondition != 1)
+op4293=>operation: key = stdsrc.getch()
+cond4296=>condition: if ((key == curses.KEY_UP) and (current_row_idx > 0))
+op4300=>operation: current_row_idx -= 1
+sub4362=>subroutine: stdsrc.clear()
+sub4364=>subroutine: func1(stdsrc, current_row_idx)
+cond4305=>condition: if ((key == curses.KEY_DOWN) and (current_row_idx < (len(tranmenu) - 1)))
+op4309=>operation: current_row_idx += 1
+cond4314=>condition: if ((key == curses.KEY_ENTER) or (key in [10, 13]))
+cond4319=>condition: if (current_row_idx == 0)
+sub4323=>subroutine: addtransaction(stdsrc)
+cond4340=>condition: if (current_row_idx == 2)
+sub4344=>subroutine: stdscr.clear()
+op4346=>operation: current_row_idx = 0
+sub4348=>subroutine: main_menu(stdsrc, current_row_idx)
+sub4350=>subroutine: break
+sub4355=>subroutine: stdsrc.refresh()
+cond4328=>operation: editviewtransactionrecord(stdsrc) if  (current_row_idx == 1)
+e4368=>end: end firstoptionmenu
+op4371=>operation: k = stdsrc.getch()
+cond4374=>condition: if (k == ord('q'))
+sub4378=>subroutine: print('Successfully exited')
+sub4380=>subroutine: quit(10)
+cond4386=>condition: if (k == ord('d'))
+sub4390=>subroutine: stdsrc.attron(curses.color_pair(1))
+sub4392=>subroutine: stdsrc.addstr((h - 1), 0, 'Debug menu <')
+sub4394=>subroutine: stdsrc.refresh()
+sub4396=>subroutine: stdsrc.getch()
+op4398=>operation: debug = ''
+op4400=>operation: chInput = stdsrc.getch()
+cond4403=>condition: while True
+cond4443=>condition: if (chInput == 127)
+op4447=>operation: debug = debug[:(- 1)]
+sub4449=>subroutine: stdsrc.addstr((h - 1), 0, (('Debug menu <' + debug) + '  '))
+sub4472=>subroutine: stdsrc.refresh()
+op4474=>operation: chInput = stdsrc.getch()
+cond4454=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+sub4458=>subroutine: break
+op4462=>operation: strInput = chr(int(chInput))
+op4464=>operation: debug = (str(debug) + str(strInput))
+op4466=>operation: curentdebugoutput = ('Debug menu <' + debug)
+sub4468=>subroutine: stdsrc.addstr((h - 1), 0, curentdebugoutput)
+sub4478=>subroutine: stdsrc.attron(curses.color_pair(2))
+cond4481=>condition: if (debug == 'decrypt')
+sub4485=>subroutine: decrypt_file(stdsrc)
+sub4531=>subroutine: exit()
+sub4536=>subroutine: stdsrc.clear()
+sub4538=>subroutine: login(stdsrc)
+sub4540=>subroutine: stdsrc.clear()
+op4542=>operation: boxtextmessage = 'Do you want to decrypt?'
+op4544=>operation: box1 = curses.newwin(5, (len(boxtextmessage) + 6), ((h // 2) - 1), (((w // 2) - 3) - (len(boxtextmessage) // 2)))
+sub4546=>subroutine: box1.box()
+sub4548=>subroutine: stdsrc.refresh()
+sub4550=>subroutine: box1.refresh()
+sub4552=>subroutine: stdsrc.addstr((h // 2), ((w // 2) - (len(boxtextmessage) // 2)), boxtextmessage)
+op4554=>operation: idx = 0
+cond4557=>condition: while True
+cond4650=>condition: if (idx == 0)
+sub4654=>subroutine: stdsrc.attron(curses.color_pair(1))
+sub4656=>subroutine: stdsrc.addstr(((h // 2) + 2), ((w // 2) - 11), 'Yes')
+sub4658=>subroutine: stdsrc.attron(curses.color_pair(2))
+sub4660=>subroutine: stdsrc.addstr(((h // 2) + 2), ((w // 2) + 10), 'No')
+sub4681=>subroutine: stdsrc.refresh()
+op4683=>operation: key = stdsrc.getkey()
+cond4686=>condition: if (key == 'KEY_LEFT')
+op4690=>operation: idx = 0
+cond4695=>condition: if (key == 'KEY_RIGHT')
+op4699=>operation: idx = 1
+cond4704=>condition: if ((key == 'KEY_ENTER') or (key in ['\n', '\r']))
+cond4709=>condition: if (idx == 0)
+sub4713=>subroutine: decrypt_file(stdsrc)
+sub4715=>subroutine: break
+cond4720=>operation: break if  (idx == 1)
+cond4665=>condition: if (idx == 1)
+sub4669=>subroutine: stdsrc.attron(curses.color_pair(2))
+sub4671=>subroutine: stdsrc.addstr(((h // 2) + 2), ((w // 2) - 11), 'Yes')
+sub4673=>subroutine: stdsrc.attron(curses.color_pair(1))
+sub4675=>subroutine: stdsrc.addstr(((h // 2) + 2), ((w // 2) + 10), 'No')
+sub4738=>subroutine: stdsrc.clear()
+op4740=>operation: current_row_idx = 0
+sub4742=>subroutine: main_menu(stdsrc, current_row_idx)
+cond4745=>condition: while 1
+op4839=>operation: key = stdsrc.getch()
+sub4841=>subroutine: stdsrc.clear()
+cond4844=>condition: if ((key == curses.KEY_UP) and (current_row_idx > 0))
+op4848=>operation: current_row_idx -= 1
+sub4926=>subroutine: main_menu(stdsrc, current_row_idx)
+cond4853=>condition: if ((key == curses.KEY_DOWN) and (current_row_idx < (len(menu) - 1)))
+op4857=>operation: current_row_idx += 1
+cond4862=>condition: if ((key == curses.KEY_ENTER) or (key in [10, 13]))
+cond4867=>condition: if (current_row_idx == 0)
+sub4871=>subroutine: firstoptionmenu(stdsrc)
+sub4919=>subroutine: stdsrc.refresh()
+cond4876=>condition: if (current_row_idx == 1)
+sub4880=>subroutine: stdsrc.clear()
+sub4882=>subroutine: graph(stdsrc)
+cond4887=>condition: if (current_row_idx == 2)
+sub4891=>subroutine: cryptovalue(stdsrc)
+cond4896=>condition: if (current_row_idx == 3)
+sub4900=>subroutine: settings(stdsrc)
+cond4905=>operation: screen_exit(stdsrc) if  (current_row_idx == 4)
+e4930=>end: end main
+st4934=>start: start login
+io4936=>inputoutput: input: stdsrc
+sub4939=>subroutine: stdsrc.clear()
+cond4942=>condition: while True
+op5200=>operation: (h, w) = stdsrc.getmaxyx()
+op5202=>operation: boxtextmessage = 'Please enter you login credentials'
+op5204=>operation: box1 = curses.newwin(10, len(boxtextmessage), ((h // 2) - 5), ((w // 2) - (len(boxtextmessage) // 2)))
+sub5206=>subroutine: box1.box()
+sub5208=>subroutine: box1.addstr(boxtextmessage)
+sub5210=>subroutine: stdsrc.refresh()
+sub5212=>subroutine: box1.refresh()
+op5214=>operation: global username
+op5216=>operation: username = str('')
+sub5218=>subroutine: stdsrc.addstr(((h // 2) - 3), (((w // 2) - (len(boxtextmessage) // 2)) + 2), 'Username: ')
+sub5220=>subroutine: stdsrc.refresh()
+op5222=>operation: chInput = stdsrc.getch()
+cond5225=>condition: while True
+cond5265=>condition: if (chInput == 127)
+op5269=>operation: username = username[:(- 1)]
+sub5271=>subroutine: stdsrc.addstr(((h // 2) - 3), (((w // 2) - (len(boxtextmessage) // 2)) + 2), (('Username: ' + username) + '  '))
+sub5294=>subroutine: stdsrc.refresh()
+op5296=>operation: chInput = stdsrc.getch()
+cond5276=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+sub5280=>subroutine: break
+op5284=>operation: strInput = chr(int(chInput))
+op5286=>operation: username = (str(username) + str(strInput))
+op5288=>operation: curentusernameoutput = ('Username: ' + username)
+sub5290=>subroutine: stdsrc.addstr(((h // 2) - 3), (((w // 2) - (len(boxtextmessage) // 2)) + 2), curentusernameoutput)
+op5300=>operation: password = str('')
+sub5302=>subroutine: stdsrc.addstr(((h // 2) - 2), (((w // 2) - (len(boxtextmessage) // 2)) + 2), 'Password: ')
+sub5304=>subroutine: stdsrc.refresh()
+op5306=>operation: chInput = stdsrc.getch()
+cond5309=>condition: while True
+cond5349=>condition: if (chInput == 127)
+op5353=>operation: password = password[:(- 1)]
+sub5355=>subroutine: stdsrc.addstr(((h // 2) - 2), (((w // 2) - (len(boxtextmessage) // 2)) + 2), (('Password: ' + (len(password) * '*')) + '  '))
+sub5378=>subroutine: stdsrc.refresh()
+op5380=>operation: chInput = stdsrc.getch()
+cond5360=>condition: if ((chInput == curses.KEY_ENTER) or (chInput in [10, 13]))
+sub5364=>subroutine: break
+op5368=>operation: strInput = chr(int(chInput))
+op5370=>operation: password = (str(password) + str(strInput))
+op5372=>operation: curentpasswordoutput = ('Password: ' + (len(password) * '*'))
+sub5374=>subroutine: stdsrc.addstr(((h // 2) - 2), (((w // 2) - (len(boxtextmessage) // 2)) + 2), curentpasswordoutput)
+sub5384=>subroutine: stdsrc.clear()
+cond5387=>condition: if simple_login(username, password)
+op5391=>operation: exit_condition = True
+op5393=>operation: result = '  _|_|    _|    _|  _|_|_|_|_|  _|    _|    _|_|    _|_|_|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|          _|_|      _|_|_|    _|_|_|  _|_|_|_|    _|_|_|  \n_|    _|  _|    _|      _|      _|    _|  _|    _|  _|    _|    _|    _|        _|        _|    _|      _|    _|  _|        _|        _|        _|        \n_|_|_|_|  _|    _|      _|      _|_|_|_|  _|    _|  _|_|_|      _|      _|_|    _|_|_|    _|    _|      _|_|_|_|  _|        _|        _|_|_|      _|_|    \n_|    _|  _|    _|      _|      _|    _|  _|    _|  _|    _|    _|          _|  _|        _|    _|      _|    _|  _|        _|        _|              _|  \n_|    _|    _|_|        _|      _|    _|    _|_|    _|    _|  _|_|_|  _|_|_|    _|_|_|_|  _|_|_|        _|    _|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|'
+op5404=>operation: result = result.splitlines()
+op5406=>operation: num_lines = len(result)
+op5408=>operation: max_width = max([len(line) for line in result])
+op5410=>operation: start_x = ((w // 2) - (max_width // 2))
+op5412=>operation: start_y = ((h // 2) - (num_lines // 2))
+op5414=>operation: box2 = curses.newwin((num_lines + 2), (max_width + 2), (start_y - 1), (start_x - 1))
+sub5416=>subroutine: box2.box()
+sub5418=>subroutine: box2.attron(curses.color_pair(4))
+cond5421=>condition: for (i, line) in enumerate(result)
+sub5430=>subroutine: stdsrc.attron(curses.color_pair(2))
+sub5432=>subroutine: box2.addstr((i + 1), 1, line)
+sub5436=>subroutine: box2.refresh()
+sub5438=>subroutine: time.sleep(2)
+sub5440=>subroutine: stdsrc.refresh()
+cond5443=>operation: break if  exit_condition
+sub5397=>subroutine: time.sleep(1)
+op5399=>operation: exit_condition = False
+op5401=>operation: result = '  _|_|      _|_|_|    _|_|_|  _|_|_|_|    _|_|_|      _|_|_|    _|_|_|_|  _|      _|  _|_|_|  _|_|_|_|  _|_|_|    \n_|    _|  _|        _|        _|        _|            _|    _|  _|        _|_|    _|    _|    _|        _|    _|  \n_|_|_|_|  _|        _|        _|_|_|      _|_|        _|    _|  _|_|_|    _|  _|  _|    _|    _|_|_|    _|    _|  \n_|    _|  _|        _|        _|              _|      _|    _|  _|        _|    _|_|    _|    _|        _|    _|  \n_|    _|    _|_|_|    _|_|_|  _|_|_|_|  _|_|_|        _|_|_|    _|_|_|_|  _|      _|  _|_|_|  _|_|_|_|  _|_|_|'
+e5455=>end: end login
+st5459=>start: start decrypt_file
+io5461=>inputoutput: input: stdsrc
+op5464=>operation: '\n    Decrypts a file using the key\n    '
+op5466=>operation: (h, w) = stdsrc.getmaxyx()
+sub5468=>subroutine: stdsrc.clear()
+op5470=>operation: textmessage = 'Enter Decryption Key: '
+op5472=>operation: win = curses.newwin(1, 40, (h // 2), ((w // 2) - 20))
+op5474=>operation: box = curses.textpad.Textbox(win)
+sub5476=>subroutine: curses.textpad.rectangle(stdsrc, ((h // 2) - 2), ((w // 2) - ((len(textmessage) // 2) + 10)), ((h // 2) + 2), (((w // 2) + (len(textmessage) // 2)) + 10))
+sub5478=>subroutine: stdsrc.addstr(((h // 2) - 1), ((w // 2) - (len(textmessage) // 2)), textmessage)
+sub5480=>subroutine: stdsrc.refresh()
+sub5482=>subroutine: box.edit()
+op5484=>operation: key = box.gather().replace('/n', '')
+op5486=>operation: key = key.replace(' ', '')
+sub5488=>subroutine: win.clear()
+sub5490=>subroutine: stdsrc.clear()
+sub5492=>subroutine: time.sleep(1)
+op5494=>operation: defaultkey = False
+cond5497=>condition: if (str(key) == 'default')
+op5501=>operation: with open('filekey.key', 'r') as filekey:
+    key = filekey.read()
+op5503=>operation: defaultkey = True
+op5505=>operation: try:
+    fernet = Fernet(key)
+except:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Defaut Key')
+    stdsrc.addstr(((h // 2) + 2), (w // 2), key)
+    stdsrc.refresh()
+    time.sleep(2)
+    exit()
+cond5515=>condition: if (str(key) == 'default')
+op5519=>operation: with open('filekey.key', 'rb') as filekey:
+    key = filekey.read()
+op5521=>operation: defaultkey = True
+op5523=>operation: try:
+    fernet = Fernet(key)
+except:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Defaut Key')
+    stdsrc.addstr(((h // 2) + 2), (w // 2), key)
+    stdsrc.refresh()
+    time.sleep(2)
+    exit()
+sub5530=>subroutine: stdsrc.addstr(((h // 2) + 4), ((w // 2) - 10), 'Loading Key...')
+op5532=>operation: (h, w) = stdsrc.getmaxyx()
+op5534=>operation: win2 = curses.newwin(1, 80, ((h // 2) + 3), ((w // 2) - 35))
+cond5537=>condition: for i in range(0, 30)
+sub5548=>subroutine: time.sleep(0.01)
+sub5550=>subroutine: win2.addstr(0, 0, 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((i / 2))), i))
+sub5552=>subroutine: win2.refresh()
+sub5556=>subroutine: win2.clear()
+sub5558=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((30 / 2))), 30))
+cond5561=>condition: if defaultkey
+sub5565=>subroutine: stdsrc.addstr(((h // 2) + 4), ((w // 2) - 10), 'Default Key Loaded  ')
+sub5572=>subroutine: stdsrc.refresh()
+sub5574=>subroutine: stdsrc.addstr(((h // 2) + 5), ((w // 2) - 10), 'Loading File...')
+op5576=>operation: with open('transactions.csv', 'rb') as enc_file:
+    encrypted = enc_file.read()
+op5578=>operation: '\n    stdsrc.clear()\n    stdsrc.addstr(h//2+4, w//2 - 35, encrypted)\n    stdsrc.refresh()\n    time.sleep(2)\n    exit(encrypted)\n    '
+op5580=>operation: (h, w) = stdsrc.getmaxyx()
+op5582=>operation: win2 = curses.newwin(1, 80, ((h // 2) + 3), ((w // 2) - 35))
+cond5585=>condition: for i in range(30, 50)
+sub5596=>subroutine: time.sleep(0.01)
+sub5598=>subroutine: win2.addstr(0, 0, 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((i / 2))), i))
+sub5600=>subroutine: win2.refresh()
+sub5604=>subroutine: win2.clear()
+sub5606=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((50 / 2))), 50))
+sub5608=>subroutine: stdsrc.addstr(((h // 2) + 5), ((w // 2) - 10), 'Loaded Encrypted File   ')
+sub5610=>subroutine: stdsrc.refresh()
+sub5612=>subroutine: stdsrc.addstr(((h // 2) + 6), ((w // 2) - 10), 'Decrypting File...')
+op5614=>operation: try:
+    decrypted = fernet.decrypt(encrypted)
+except Exception as e:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Key')
+    stdsrc.refresh()
+    stdsrc.addstr(((h // 2) + 2), (w // 2), e)
+    stdsrc.refresh()
+    time.sleep(4)
+    exit(e)
+op5616=>operation: win2 = curses.newwin(1, 80, ((h // 2) + 3), ((w // 2) - 35))
+cond5619=>condition: for i in range(50, 75)
+sub5630=>subroutine: time.sleep(0.01)
+sub5632=>subroutine: win2.addstr(0, 0, 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((i / 2))), i))
+sub5634=>subroutine: win2.refresh()
+sub5638=>subroutine: win2.clear()
+sub5640=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((75 / 2))), 75))
+sub5642=>subroutine: stdsrc.addstr(((h // 2) + 6), ((w // 2) - 10), 'File Decrypted    ')
+sub5644=>subroutine: stdsrc.refresh()
+sub5646=>subroutine: stdsrc.addstr(((h // 2) + 7), ((w // 2) - 10), 'Remplacing File...')
+op5648=>operation: with open('transactions.csv', 'wb') as dec_file:
+    dec_file.write(decrypted)
+op5650=>operation: win2 = curses.newwin(1, 80, ((h // 2) + 3), ((w // 2) - 35))
+cond5653=>condition: for i in range(75, 101)
+sub5664=>subroutine: time.sleep(0.01)
+sub5666=>subroutine: win2.addstr(0, 0, 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((i / 2))), i))
+sub5668=>subroutine: win2.refresh()
+sub5672=>subroutine: win2.clear()
+sub5674=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((101 / 2))), 100))
+sub5676=>subroutine: stdsrc.addstr(((h // 2) + 7), ((w // 2) - 10), 'File Replaced     ')
+sub5678=>subroutine: stdsrc.refresh()
+sub5680=>subroutine: time.sleep(1)
+sub5682=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((101 / 2))), 100))
+sub5684=>subroutine: stdsrc.addstr(((h // 2) + 8), ((w // 2) - 10), 'Decryption Succesfully Complete')
+sub5686=>subroutine: stdsrc.refresh()
+sub5688=>subroutine: time.sleep(2)
+sub5690=>subroutine: stdsrc.clear()
+e5692=>end: end decrypt_file
+st5696=>start: start main_menu
+io5698=>inputoutput: input: stdsrc, selected_row_idx
+op5701=>operation: (h, w) = stdsrc.getmaxyx()
+op5703=>operation: '\n    cursor_x = max(0, cursor_x)\n    cursor_x = min(w-1, cursor_x)\n    cursor_y = max(0, cursor_y)\n    cursor_y = min(h-1, cursor_y)\n    statusbarstr = "Press \'q\' to exit | STATUS BAR | Pos: {}, {}".format(cursor_x, cursor_y)\n    '
+cond5706=>condition: for (idx, row) in enumerate(menu)
+op5731=>operation: x = ((w // 2) - (len(row) // 2))
+op5733=>operation: y = (((h // 2) - (len(menu) // 2)) + menu.index(row))
+cond5736=>condition: if (idx == selected_row_idx)
+sub5740=>subroutine: stdsrc.attron(curses.color_pair(3))
+sub5742=>subroutine: stdsrc.addstr(y, x, row)
+sub5744=>subroutine: stdsrc.attron(curses.color_pair(1))
+sub5748=>subroutine: stdsrc.addstr(y, x, row)
+sub5753=>subroutine: stdsrc.refresh()
+e5755=>end: end main_menu
+st5759=>start: start screen_exit
+io5761=>inputoutput: input: stdsrc
+op5764=>operation: (h, w) = stdsrc.getmaxyx()
+sub5766=>subroutine: stdsrc.clear()
+op5768=>operation: boxtextmessage = 'Do you want to encrypt?'
+op5770=>operation: box1 = curses.newwin(5, (len(boxtextmessage) + 6), ((h // 2) - 1), (((w // 2) - 3) - (len(boxtextmessage) // 2)))
+sub5772=>subroutine: box1.box()
+sub5774=>subroutine: stdsrc.refresh()
+sub5776=>subroutine: box1.refresh()
+sub5778=>subroutine: stdsrc.addstr((h // 2), ((w // 2) - (len(boxtextmessage) // 2)), boxtextmessage)
+op5780=>operation: idx = 0
+cond5783=>condition: while True
+cond5876=>condition: if (idx == 0)
+sub5880=>subroutine: stdsrc.attron(curses.color_pair(1))
+sub5882=>subroutine: stdsrc.addstr(((h // 2) + 2), ((w // 2) - 11), 'Yes')
+sub5884=>subroutine: stdsrc.attron(curses.color_pair(2))
+sub5886=>subroutine: stdsrc.addstr(((h // 2) + 2), ((w // 2) + 10), 'No')
+sub5907=>subroutine: stdsrc.refresh()
+op5909=>operation: key = stdsrc.getkey()
+cond5912=>condition: if (key == 'KEY_LEFT')
+op5916=>operation: idx = 0
+cond5921=>condition: if (key == 'KEY_RIGHT')
+op5925=>operation: idx = 1
+cond5930=>condition: if ((key == 'KEY_ENTER') or (key in ['\n', '\r']))
+cond5935=>condition: if (idx == 0)
+sub5939=>subroutine: encrypt_file(stdsrc)
+sub5941=>subroutine: break
+cond5946=>operation: break if  (idx == 1)
+cond5891=>condition: if (idx == 1)
+sub5895=>subroutine: stdsrc.attron(curses.color_pair(2))
+sub5897=>subroutine: stdsrc.addstr(((h // 2) + 2), ((w // 2) - 11), 'Yes')
+sub5899=>subroutine: stdsrc.attron(curses.color_pair(1))
+sub5901=>subroutine: stdsrc.addstr(((h // 2) + 2), ((w // 2) + 10), 'No')
+sub5964=>subroutine: exit()
+e5966=>end: end screen_exit
+st5970=>start: start encrypt_file
+io5972=>inputoutput: input: stdsrc
+op5975=>operation: '\n    Encrypts a file using the key\n    '
+op5977=>operation: (h, w) = stdsrc.getmaxyx()
+sub5979=>subroutine: stdsrc.clear()
+op5981=>operation: textmessage = 'Enter Encryption Key: '
+op5983=>operation: win = curses.newwin(1, 40, (h // 2), ((w // 2) - 20))
+op5985=>operation: box = curses.textpad.Textbox(win)
+sub5987=>subroutine: curses.textpad.rectangle(stdsrc, ((h // 2) - 2), ((w // 2) - ((len(textmessage) // 2) + 10)), ((h // 2) + 2), (((w // 2) + (len(textmessage) // 2)) + 10))
+sub5989=>subroutine: stdsrc.addstr(((h // 2) - 1), ((w // 2) - (len(textmessage) // 2)), textmessage)
+sub5991=>subroutine: stdsrc.refresh()
+sub5993=>subroutine: box.edit()
+op5995=>operation: key = box.gather().replace('/n', '')
+op5997=>operation: key = key.replace(' ', '')
+sub5999=>subroutine: win.clear()
+sub6001=>subroutine: stdsrc.clear()
+sub6003=>subroutine: time.sleep(1)
+op6005=>operation: defaultkey = False
+cond6008=>condition: if (str(key) == 'default')
+op6012=>operation: with open('filekey.key', 'r') as filekey:
+    key = filekey.read()
+op6014=>operation: defaultkey = True
+sub6016=>subroutine: stdsrc.refresh()
+op6018=>operation: try:
+    fernet = Fernet(key)
+except:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Defaut Key')
+    stdsrc.addstr(((h // 2) + 2), (w // 2), key)
+    stdsrc.refresh()
+    time.sleep(2)
+    exit()
+cond6028=>condition: if (str(key) == 'default')
+op6032=>operation: with open('filekey.key', 'rb') as filekey:
+    key = filekey.read()
+op6034=>operation: defaultkey = True
+op6036=>operation: try:
+    fernet = Fernet(key)
+except:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Defaut Key')
+    stdsrc.addstr(((h // 2) + 2), (w // 2), key)
+    stdsrc.refresh()
+    time.sleep(2)
+    exit()
+sub6043=>subroutine: stdsrc.addstr(((h // 2) + 4), ((w // 2) - 10), 'Loading Key...')
+op6045=>operation: (h, w) = stdsrc.getmaxyx()
+op6047=>operation: win2 = curses.newwin(1, 80, ((h // 2) + 3), ((w // 2) - 35))
+cond6050=>condition: for i in range(0, 30)
+sub6061=>subroutine: time.sleep(0.01)
+sub6063=>subroutine: win2.addstr(0, 0, 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((i / 2))), i))
+sub6065=>subroutine: win2.refresh()
+sub6069=>subroutine: win2.clear()
+sub6071=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((30 / 2))), 30))
+cond6074=>condition: if defaultkey
+sub6078=>subroutine: stdsrc.addstr(((h // 2) + 4), ((w // 2) - 10), 'Default Key Loaded  ')
+sub6085=>subroutine: stdsrc.refresh()
+sub6087=>subroutine: stdsrc.addstr(((h // 2) + 5), ((w // 2) - 10), 'Loading File...')
+op6089=>operation: with open('transactions.csv', 'rb') as enc_file:
+    decrypted = enc_file.read()
+op6091=>operation: (h, w) = stdsrc.getmaxyx()
+op6093=>operation: win2 = curses.newwin(1, 80, ((h // 2) + 3), ((w // 2) - 35))
+cond6096=>condition: for i in range(30, 50)
+sub6107=>subroutine: time.sleep(0.01)
+sub6109=>subroutine: win2.addstr(0, 0, 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((i / 2))), i))
+sub6111=>subroutine: win2.refresh()
+sub6115=>subroutine: win2.clear()
+sub6117=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((50 / 2))), 50))
+sub6119=>subroutine: stdsrc.addstr(((h // 2) + 5), ((w // 2) - 10), 'Loaded Decrypted File   ')
+sub6121=>subroutine: stdsrc.refresh()
+sub6123=>subroutine: stdsrc.addstr(((h // 2) + 6), ((w // 2) - 10), 'Encrypting File...')
+op6125=>operation: try:
+    encrypted = fernet.encrypt(decrypted)
+except Exception as e:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Key')
+    stdsrc.refresh()
+    stdsrc.addstr(((h // 2) + 2), (w // 2), e)
+    stdsrc.refresh()
+    time.sleep(4)
+    exit(e)
+op6127=>operation: win2 = curses.newwin(1, 80, ((h // 2) + 3), ((w // 2) - 35))
+cond6130=>condition: for i in range(50, 75)
+sub6141=>subroutine: time.sleep(0.01)
+sub6143=>subroutine: win2.addstr(0, 0, 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((i / 2))), i))
+sub6145=>subroutine: win2.refresh()
+sub6149=>subroutine: win2.clear()
+sub6151=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((75 / 2))), 75))
+sub6153=>subroutine: stdsrc.addstr(((h // 2) + 6), ((w // 2) - 10), 'File Encrypted    ')
+sub6155=>subroutine: stdsrc.refresh()
+sub6157=>subroutine: stdsrc.addstr(((h // 2) + 7), ((w // 2) - 10), 'Remplacing File...')
+op6159=>operation: with open('transactions.csv', 'wb') as dec_file:
+    dec_file.write(encrypted)
+op6161=>operation: win2 = curses.newwin(1, 80, ((h // 2) + 3), ((w // 2) - 35))
+cond6164=>condition: for i in range(75, 101)
+sub6175=>subroutine: time.sleep(0.01)
+sub6177=>subroutine: win2.addstr(0, 0, 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((i / 2))), i))
+sub6179=>subroutine: win2.refresh()
+sub6183=>subroutine: win2.clear()
+sub6185=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((101 / 2))), 100))
+sub6187=>subroutine: stdsrc.addstr(((h // 2) + 7), ((w // 2) - 10), 'File Replaced     ')
+sub6189=>subroutine: stdsrc.refresh()
+sub6191=>subroutine: time.sleep(1)
+sub6193=>subroutine: stdsrc.addstr(((h // 2) + 3), ((w // 2) - 35), 'Progress: [{0:50s}] {1:.1f}%'.format(('#' * int((101 / 2))), 100))
+sub6195=>subroutine: stdsrc.addstr(((h // 2) + 8), ((w // 2) - 10), 'Encryption Succesfully Complete')
+sub6197=>subroutine: stdsrc.refresh()
+sub6199=>subroutine: time.sleep(1)
+e6201=>end: end encrypt_file
+st6205=>start: start func1
+io6207=>inputoutput: input: stdsrc, current_row_idx
+op6210=>operation: tranmenu = ['Add Transaction', 'View and edit Transactions', 'Back']
+op6212=>operation: (h, w) = stdsrc.getmaxyx()
+op6214=>operation: '\n    cursor_x = max(0, cursor_x)\n    cursor_x = min(w-1, cursor_x)\n    cursor_y = max(0, cursor_y)\n    cursor_y = min(h-1, cursor_y)\n    statusbarstr = "Press \'q\' to exit | STATUS BAR | Pos: {}, {}".format(cursor_x, cursor_y)\n    '
+cond6217=>condition: for (idx, row) in enumerate(tranmenu)
+op6242=>operation: x = ((w // 2) - (len(row) // 2))
+op6244=>operation: y = (((h // 2) - (len(tranmenu) // 2)) + tranmenu.index(row))
+cond6247=>condition: if (idx == current_row_idx)
+sub6251=>subroutine: stdsrc.attron(curses.color_pair(3))
+sub6253=>subroutine: stdsrc.addstr(y, x, row)
+sub6255=>subroutine: stdsrc.attron(curses.color_pair(1))
+sub6259=>subroutine: stdsrc.addstr(y, x, row)
+sub6264=>subroutine: stdsrc.refresh()
+e6266=>end: end func1
+sub6269=>subroutine: curses.wrapper(main)
+sub6271=>subroutine: curses.initscr()
+sub6082=>subroutine: stdsrc.addstr(((h // 2) + 4), ((w // 2) - 10), 'Key loaded   ')
+op6040=>operation: try:
+    fernet = Fernet(key)
+except:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Key')
+    stdsrc.refresh()
+    time.sleep(2)
+    exit()
+op6022=>operation: try:
+    fernet = Fernet(key)
+except:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Key')
+    stdsrc.refresh()
+    time.sleep(2)
+    exit()
+op6024=>operation: defaultkey = False
+sub5569=>subroutine: stdsrc.addstr(((h // 2) + 4), ((w // 2) - 10), 'Key loaded   ')
+op5527=>operation: try:
+    fernet = Fernet(key)
+except:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Key')
+    stdsrc.refresh()
+    time.sleep(2)
+    exit()
+op5509=>operation: try:
+    fernet = Fernet(key)
+except:
+    stdsrc.clear()
+    stdsrc.addstr((h // 2), (w // 2), 'Invalid Key')
+    stdsrc.refresh()
+    time.sleep(2)
+    exit()
+op5511=>operation: defaultkey = False
+cond4490=>condition: if (debug == 'encrypt')
+sub4494=>subroutine: encrypt_file(stdsrc)
+cond4499=>condition: if (debug == 'exit')
+sub4503=>subroutine: screen_exit(stdsrc)
+cond4508=>condition: if (debug == 'login')
+sub4512=>subroutine: login(stdsrc)
+cond4517=>operation: main_menu(stdsrc, 0) if  (debug == 'menu')
+op3760=>operation: amount = (- int(amount))
+op3261=>operation: idx = 1
+
+op2->sub4
+sub4->op6
+op6->sub8
+sub8->op10
+op10->sub12
+sub12->op14
+op14->sub16
+sub16->op18
+op18->sub20
+sub20->op22
+op22->sub24
+sub24->op26
+op26->sub28
+sub28->op30
+op30->sub32
+sub32->op34
+op34->sub36
+sub36->op38
+op38->op40
+op40->op42
+op42->st45
+st45->io47
+io47->sub50
+sub50->sub52
+sub52->sub54
+sub54->sub56
+sub56->sub58
+sub58->sub60
+sub60->sub62
+sub62->sub64
+sub64->op66
+op66->op68
+op68->sub70
+sub70->sub72
+sub72->op74
+op74->sub76
+sub76->st79
+st79->io81
+io81->op84
+op84->e86
+e86->st90
+st90->io92
+io92->sub95
+sub95->op97
+op97->sub99
+sub99->sub101
+sub101->op103
+op103->cond106
+cond106(yes)->op231
+op231->cond234
+cond234(yes)->op238
+op238->sub347
+sub347->sub349
+sub349(left)->cond106
+cond234(no)->cond243
+cond243(yes)->op247
+op247->sub347
+cond243(no)->cond252
+cond252(yes)->cond257
+cond257(yes)->io264
+io264->e262
+cond257(no)->cond270
+cond270(yes)->io277
+io277->e275
+cond270(no)->cond283
+cond283(yes)->io290
+io290->e288
+cond283(no)->cond296
+cond296(yes)->io303
+io303->e301
+cond296(no)->cond309
+cond309(yes)->io316
+io316->e314
+cond309(no)->cond322
+cond322(yes)->io329
+io329->e327
+cond322(no)->sub340
+sub340->sub347
+cond252(no)->sub347
+cond106(no)->e353
+e353->st357
+st357->io359
+io359->sub362
+sub362->sub364
+sub364->sub366
+sub366->sub368
+sub368->op370
+op370->cond373
+cond373(yes)->op400
+op400->op402
+op402->cond405
+cond405(yes)->sub409
+sub409->sub411
+sub411->sub413
+sub413->cond373
+cond405(no)->sub417
+sub417->sub419
+sub419->cond373
+cond373(no)->sub424
+sub424->e426
+e426->st430
+st430->io432
+io432->sub435
+sub435->sub437
+sub437->op439
+op439->op441
+op441->sub443
+sub443->sub445
+sub445->op447
+op447->sub449
+sub449->sub451
+sub451->sub453
+sub453->op455
+op455->cond458
+cond458(yes)->cond498
+cond498(yes)->op502
+op502->sub504
+sub504->sub527
+sub527->op529
+op529(left)->cond458
+cond498(no)->cond509
+cond509(yes)->sub513
+cond509(no)->op517
+op517->op519
+op519->op521
+op521->sub523
+sub523->sub527
+cond458(no)->sub533
+sub533->sub535
+sub535->op537
+op537->op539
+op539->op541
+op541->op543
+op543->op545
+op545->op547
+op547->op549
+op549->e551
+e551->st555
+st555->io557
+io557->sub560
+sub560->sub562
+sub562->op564
+op564->cond567
+cond567(yes)->sub571
+sub571->sub573
+sub573->cond579
+cond579(yes)->sub583
+sub583->sub585
+sub585->cond591
+cond591(yes)->sub595
+sub595->sub597
+sub597->cond603
+cond603(yes)->sub607
+sub607->sub609
+sub609->cond615
+cond615(yes)->sub619
+sub619->sub621
+sub621->cond627
+cond627(yes)->sub631
+sub631->sub633
+sub633->cond639
+cond639(yes)->sub643
+sub643->sub645
+sub645->e650
+e650->st654
+st654->io656
+io656->op659
+op659->sub661
+sub661->op663
+op663->op665
+op665->sub667
+sub667->sub669
+sub669->sub671
+sub671->op673
+op673->sub675
+sub675->op677
+op677->cond680
+cond680(yes)->cond820
+cond820(yes)->op824
+op824->sub947
+sub947->sub949
+sub949->op951
+op951(left)->cond680
+cond820(no)->cond829
+cond829(yes)->op833
+op833->sub947
+cond829(no)->cond838
+cond838(yes)->cond843
+cond843(yes)->io850
+io850->e848
+cond843(no)->cond856
+cond856(yes)->io863
+io863->e861
+cond856(no)->cond869
+cond869(yes)->io876
+io876->e874
+cond869(no)->cond882
+cond882(yes)->io889
+io889->e887
+cond882(no)->cond895
+cond895(yes)->io902
+io902->e900
+cond895(no)->cond908
+cond908(yes)->io915
+io915->e913
+cond908(no)->cond921
+cond921(yes)->io928
+io928->e926
+cond921(no)->sub940
+sub940->sub947
+cond838(no)->sub947
+cond680(no)->e955
+e955->st959
+st959->io961
+io961->op964
+op964->sub966
+sub966->sub968
+sub968->op970
+op970->op972
+op972->op974
+op974->sub976
+sub976->sub978
+sub978->sub980
+sub980->sub982
+sub982->op984
+op984->sub986
+sub986->op988
+op988->cond991
+cond991(yes)->cond1219
+cond1219(yes)->op1223
+op1223->sub1430
+sub1430->sub1432
+sub1432->sub1434
+sub1434->sub1436
+sub1436->op1438
+op1438(left)->cond991
+cond1219(no)->cond1228
+cond1228(yes)->op1232
+op1232->sub1430
+cond1228(no)->cond1237
+cond1237(yes)->cond1242
+cond1242(yes)->sub1246
+sub1246->sub1430
+cond1242(no)->cond1251
+cond1251(yes)->sub1255
+sub1255->sub1430
+cond1251(no)->cond1260
+cond1260(yes)->sub1264
+sub1264->sub1266
+sub1266->op1268
+op1268->op1270
+op1270->sub1272
+sub1272->sub1274
+sub1274->sub1276
+sub1276->sub1278
+sub1278->sub1280
+sub1280->sub1282
+sub1282->sub1284
+sub1284->sub1286
+sub1286->op1288
+op1288->cond1291
+cond1291(yes)->cond1352
+cond1352(yes)->op1356
+op1356->op1358
+op1358->op1360
+op1360->op1362
+op1362->op1364
+op1364->sub1366
+sub1366->sub1368
+sub1368->op1370
+op1370->op1372
+op1372->sub1374
+sub1374->sub1376
+sub1376->sub1378
+sub1378->sub1380
+sub1380->sub1382
+sub1382->sub1384
+sub1384->sub1386
+sub1386->sub1388
+sub1388->sub1390
+cond1352(no)->cond1395
+cond1395->cond1291
+cond1291(no)->sub1430
+cond1260(no)->cond1411
+cond1411(yes)->sub1415
+sub1415->sub1417
+cond1411(no)->sub1430
+cond1237(no)->sub1430
+cond991(no)->e1442
+e1442->st1446
+st1446->io1448
+io1448->op1451
+op1451->cond1454
+cond1454(yes)->op1479
+op1479->op1481
+op1481->cond1484
+cond1484(yes)->sub1488
+sub1488->sub1490
+sub1490->sub1492
+sub1492->cond1454
+cond1484(no)->sub1496
+sub1496->cond1454
+cond1454(no)->sub1501
+sub1501->e1503
+e1503->st1507
+st1507->io1509
+io1509->op1512
+op1512->op1514
+op1514->cond1517
+cond1517(yes)->sub1521
+sub1521->e1524
+cond1517(no)->sub1530
+sub1530->op1532
+op1532->sub1534
+sub1534->sub1536
+sub1536->op1538
+op1538->op1540
+op1540->sub1542
+sub1542->op1544
+op1544->op1546
+op1546->sub1548
+sub1548->sub1550
+sub1550->op1552
+op1552->cond1555
+cond1555(yes)->cond1627
+cond1627(yes)->op1631
+op1631->sub1633
+sub1633->sub1688
+sub1688->op1690
+op1690(left)->cond1555
+cond1627(no)->cond1638
+cond1638(yes)->cond1643
+cond1643(yes)->cond1648
+cond1648(yes)->op1652
+op1652->sub1654
+sub1654->sub1656
+cond1648(no)->sub1661
+sub1661->sub1663
+sub1663->sub1665
+sub1665->sub1688
+cond1643(no)->sub1669
+sub1669->sub1671
+sub1671->sub1673
+sub1673->sub1688
+cond1638(no)->op1678
+op1678->op1680
+op1680->op1682
+op1682->sub1684
+sub1684->sub1688
+cond1555(no)->op1694
+op1694->sub1696
+sub1696->sub1698
+sub1698->op1700
+op1700->cond1703
+cond1703(yes)->cond1781
+cond1781(yes)->op1785
+op1785->sub1787
+sub1787->sub1848
+sub1848->op1850
+op1850(left)->cond1703
+cond1781(no)->cond1792
+cond1792(yes)->cond1797
+cond1797(yes)->op1801
+op1801->sub1803
+cond1797(no)->cond1808
+cond1808(yes)->cond1813
+cond1813(yes)->op1817
+op1817->sub1819
+cond1813(no)->sub1824
+sub1824->sub1848
+cond1808(no)->sub1828
+sub1828->sub1830
+sub1830->sub1832
+sub1832->sub1848
+cond1792(no)->op1838
+op1838->op1840
+op1840->op1842
+op1842->sub1844
+sub1844->sub1848
+cond1703(no)->op1854
+op1854->cond1857
+cond1857->op1867
+op1867->sub1869
+sub1869->sub1871
+sub1871->sub1873
+sub1873->sub1875
+sub1875->op1877
+op1877->op1879
+op1879->sub1881
+sub1881->sub1883
+sub1883->sub1885
+sub1885->sub1887
+sub1887->sub1889
+sub1889->sub1891
+sub1891->sub1893
+sub1893->sub1895
+sub1895->sub1897
+sub1897->sub1899
+sub1899->sub1901
+sub1901->sub1903
+sub1903->sub1905
+sub1905->sub1907
+sub1907->sub1909
+sub1909->e1911
+e1911->st1915
+st1915->io1917
+io1917->sub1920
+sub1920->cond1923
+cond1923(yes)->op2450
+op2450->op2452
+op2452->op2454
+op2454->sub2456
+sub2456->sub2458
+sub2458->sub2460
+sub2460->sub2462
+sub2462->op2464
+op2464->cond2467
+cond2467(yes)->cond2561
+cond2561(yes)->sub2565
+sub2565->sub2567
+sub2567->sub2569
+sub2569->sub2571
+sub2571->sub2592
+sub2592->op2594
+op2594->cond2597
+cond2597(yes)->op2601
+op2601->cond2467
+cond2597(no)->cond2606
+cond2606(yes)->op2610
+op2610->cond2467
+cond2606(no)->cond2615
+cond2615(yes)->cond2620
+cond2620(yes)->op2624
+op2624->sub2626
+cond2620(no)->cond2631
+cond2631(yes)->op2635
+op2635->sub2637
+cond2631(no)->cond2467
+cond2615(no)->cond2467
+cond2561(no)->cond2576
+cond2576(yes)->sub2580
+sub2580->sub2582
+sub2582->sub2584
+sub2584->sub2586
+sub2586->sub2592
+cond2576(no)->sub2592
+cond2467(no)->sub2650
+sub2650->op2652
+op2652->sub2654
+sub2654->sub2656
+sub2656->op2658
+op2658->cond2661
+cond2661(yes)->sub2760
+sub2760->cond2763
+cond2763(yes)->op2767
+op2767->sub2769
+sub2769->sub2850
+sub2850->op2852
+op2852(left)->cond2661
+cond2763(no)->cond2774
+cond2774(yes)->cond2779
+cond2779(yes)->op2783
+op2783->sub2785
+cond2779(no)->cond2791
+cond2791(yes)->sub2795
+sub2795->sub2797
+sub2797->sub2799
+sub2799->sub2850
+cond2791(no)->cond2804
+cond2804(yes)->sub2808
+sub2808->sub2810
+sub2810->sub2812
+sub2812->sub2850
+cond2804(no)->cond2817
+cond2817(yes)->sub2821
+sub2821->sub2823
+sub2823->sub2825
+sub2825->sub2850
+cond2817(no)->op2829
+op2829->sub2831
+cond2774(no)->sub2838
+sub2838->op2840
+op2840->op2842
+op2842->op2844
+op2844->sub2846
+sub2846->sub2850
+cond2661(no)->op2856
+op2856->sub2858
+sub2858->sub2860
+sub2860->op2862
+op2862->cond2865
+cond2865(yes)->cond2905
+cond2905(yes)->op2909
+op2909->sub2911
+sub2911->sub2934
+sub2934->op2936
+op2936(left)->cond2865
+cond2905(no)->cond2916
+cond2916(yes)->sub2920
+cond2916(no)->op2924
+op2924->op2926
+op2926->op2928
+op2928->sub2930
+sub2930->sub2934
+cond2865(no)->sub2940
+sub2940->cond2943
+cond2943(yes)->op2947
+op2947->op2954
+op2954->sub2956
+sub2956->sub2958
+sub2958->sub2960
+sub2960->sub2962
+sub2962->sub2964
+sub2964->sub2966
+sub2966->sub2968
+cond2943(no)->op2951
+op2951->op2954
+cond1923(no)->e2974
+e2974->st2978
+st2978->io2980
+io2980->op2983
+op2983->op2985
+op2985->sub2987
+sub2987->op2989
+op2989->sub2991
+sub2991->sub2993
+sub2993->sub2995
+sub2995->op2997
+op2997->op2999
+op2999->op3001
+op3001->op3003
+op3003->cond3006
+cond3006(yes)->cond3100
+cond3100(yes)->sub3104
+sub3104->sub3106
+sub3106->sub3108
+sub3108->sub3110
+sub3110->sub3131
+sub3131->op3133
+op3133->cond3136
+cond3136(yes)->op3140
+op3140->cond3006
+cond3136(no)->cond3145
+cond3145(yes)->op3149
+op3149->cond3006
+cond3145(no)->cond3154
+cond3154(yes)->cond3159
+cond3159(yes)->op3163
+op3163->sub3165
+cond3159(no)->cond3170
+cond3170(yes)->op3174
+op3174->sub3176
+cond3170(no)->cond3006
+cond3154(no)->cond3006
+cond3100(no)->cond3115
+cond3115(yes)->sub3119
+sub3119->sub3121
+sub3121->sub3123
+sub3123->sub3125
+sub3125->sub3131
+cond3115(no)->sub3131
+cond3006(no)->cond3190
+cond3190(yes)->op3194
+op3194->op3196
+op3196->sub3198
+sub3198->sub3200
+sub3200->sub3202
+sub3202->sub3204
+sub3204->sub3206
+sub3206->sub3208
+sub3208->sub3210
+sub3210->sub3212
+sub3212->sub3214
+sub3214->op3216
+op3216->cond3222
+cond3222(yes)->op3226
+op3226->op3228
+op3228->op3230
+op3230->op3232
+op3232->sub3234
+sub3234->sub3236
+sub3236->sub3238
+sub3238->sub3240
+sub3240->op3242
+op3242->op3244
+op3244->op3246
+op3246->op3248
+op3248->op3250
+op3250->cond3253
+cond3253(yes)->op3257
+op3257->cond3265
+cond3265(yes)->cond3361
+cond3361(yes)->sub3365
+sub3365->sub3367
+sub3367->sub3369
+sub3369->sub3371
+sub3371->sub3392
+sub3392->sub3394
+sub3394->op3396
+op3396->cond3399
+cond3399(yes)->op3403
+op3403->cond3265
+cond3399(no)->cond3408
+cond3408(yes)->op3412
+op3412->cond3265
+cond3408(no)->cond3417
+cond3417(yes)->cond3422
+cond3422(yes)->op3426
+op3426->sub3428
+cond3422(no)->cond3433
+cond3433(yes)->op3437
+op3437->sub3439
+cond3433(no)->cond3265
+cond3417(no)->cond3265
+cond3361(no)->cond3376
+cond3376(yes)->sub3380
+sub3380->sub3382
+sub3382->sub3384
+sub3384->sub3386
+sub3386->sub3392
+cond3376(no)->sub3392
+cond3265(no)->sub3452
+sub3452->cond3455
+cond3455->sub3465
+sub3465->sub3467
+sub3467->op3469
+op3469->cond3472
+cond3472(yes)->sub3571
+sub3571->cond3574
+cond3574(yes)->op3578
+op3578->sub3580
+sub3580->sub3661
+sub3661->op3663
+op3663(left)->cond3472
+cond3574(no)->cond3585
+cond3585(yes)->cond3590
+cond3590(yes)->op3594
+op3594->sub3596
+cond3590(no)->cond3602
+cond3602(yes)->sub3606
+sub3606->sub3608
+sub3608->sub3610
+sub3610->sub3661
+cond3602(no)->cond3615
+cond3615(yes)->sub3619
+sub3619->sub3621
+sub3621->sub3623
+sub3623->sub3661
+cond3615(no)->cond3628
+cond3628(yes)->sub3632
+sub3632->sub3634
+sub3634->sub3636
+sub3636->sub3661
+cond3628(no)->op3640
+op3640->sub3642
+cond3585(no)->sub3649
+sub3649->op3651
+op3651->op3653
+op3653->op3655
+op3655->sub3657
+sub3657->sub3661
+cond3472(no)->sub3667
+sub3667->sub3669
+sub3669->sub3671
+sub3671->op3673
+op3673->cond3676
+cond3676(yes)->cond3716
+cond3716(yes)->op3720
+op3720->sub3722
+sub3722->sub3745
+sub3745->op3747
+op3747(left)->cond3676
+cond3716(no)->cond3727
+cond3727(yes)->sub3731
+cond3727(no)->op3735
+op3735->op3737
+op3737->op3739
+op3739->sub3741
+sub3741->sub3745
+cond3676(no)->cond3752
+cond3752(yes)->op3756
+op3756->op3763
+op3763->op3765
+op3765->sub3767
+sub3767->sub3769
+sub3769->sub3771
+sub3771->sub3773
+sub3773->sub3775
+sub3775->sub3777
+sub3777->sub3779
+sub3779->sub3781
+sub3781->sub3783
+sub3783->op3785
+op3785->e3790
+e3790->st3794
+st3794->io3796
+io3796->op3799
+op3799->op3801
+op3801->sub3803
+sub3803->sub3805
+sub3805->op3807
+op3807->sub3809
+sub3809->sub3811
+sub3811->sub3813
+sub3813->sub3815
+sub3815->sub3817
+sub3817->sub3819
+sub3819->sub3821
+sub3821->sub3823
+sub3823->sub3825
+sub3825->sub3827
+sub3827->sub3829
+sub3829->sub3831
+sub3831->sub3833
+sub3833->sub3835
+sub3835->sub3837
+sub3837->cond3840
+cond3840(yes)->op4017
+op4017->op4019
+op4019->sub4021
+sub4021->op4023
+op4023->sub4025
+sub4025->sub4027
+sub4027->sub4029
+sub4029->op4031
+op4031->op4033
+op4033->st4036
+st4036->io4038
+io4038->sub4041
+sub4041->sub4043
+sub4043->sub4045
+sub4045->op4047
+op4047->sub4049
+sub4049->e4051
+e4051->op4054
+op4054->sub4056
+sub4056->cond4059
+cond4059(yes)->sub4120
+sub4120->op4122
+op4122->cond4125
+cond4125(yes)->op4129
+op4129->sub4174
+sub4174(left)->cond4059
+cond4125(no)->cond4134
+cond4134(yes)->op4138
+op4138->sub4174
+cond4134(no)->cond4143
+cond4143(yes)->op4147
+op4147->sub4149
+sub4149->sub4151
+sub4151->sub4174
+cond4143(no)->cond4156
+cond4156(yes)->sub4160
+sub4160->op4162
+op4162->op4164
+op4164->sub4166
+cond4156(no)->sub4174
+cond4059(no)->cond4179
+cond4179->cond3840
+cond3840(no)->e4191
+e4191->sub4194
+sub4194->sub4196
+sub4196->st4199
+st4199->io4201
+io4201->sub4204
+sub4204->op4206
+op4206->sub4208
+sub4208->sub4210
+sub4210->op4212
+op4212->cond4215
+cond4215(yes)->op4293
+op4293->cond4296
+cond4296(yes)->op4300
+op4300->sub4362
+sub4362->sub4364
+sub4364(left)->cond4215
+cond4296(no)->cond4305
+cond4305(yes)->op4309
+op4309->sub4362
+cond4305(no)->cond4314
+cond4314(yes)->cond4319
+cond4319(yes)->sub4323
+sub4323->cond4340
+cond4340(yes)->sub4344
+sub4344->op4346
+op4346->sub4348
+sub4348->sub4350
+cond4340(no)->sub4355
+sub4355->sub4362
+cond4319(no)->cond4328
+cond4328->cond4340
+cond4314(no)->sub4362
+cond4215(no)->e4368
+e4368->op4371
+op4371->cond4374
+cond4374(yes)->sub4378
+sub4378->sub4380
+sub4380->cond4386
+cond4386(yes)->sub4390
+sub4390->sub4392
+sub4392->sub4394
+sub4394->sub4396
+sub4396->op4398
+op4398->op4400
+op4400->cond4403
+cond4403(yes)->cond4443
+cond4443(yes)->op4447
+op4447->sub4449
+sub4449->sub4472
+sub4472->op4474
+op4474(left)->cond4403
+cond4443(no)->cond4454
+cond4454(yes)->sub4458
+cond4454(no)->op4462
+op4462->op4464
+op4464->op4466
+op4466->sub4468
+sub4468->sub4472
+cond4403(no)->sub4478
+sub4478->cond4481
+cond4481(yes)->sub4485
+sub4485->sub4531
+sub4531->sub4536
+sub4536->sub4538
+sub4538->sub4540
+sub4540->op4542
+op4542->op4544
+op4544->sub4546
+sub4546->sub4548
+sub4548->sub4550
+sub4550->sub4552
+sub4552->op4554
+op4554->cond4557
+cond4557(yes)->cond4650
+cond4650(yes)->sub4654
+sub4654->sub4656
+sub4656->sub4658
+sub4658->sub4660
+sub4660->sub4681
+sub4681->op4683
+op4683->cond4686
+cond4686(yes)->op4690
+op4690->cond4557
+cond4686(no)->cond4695
+cond4695(yes)->op4699
+op4699->cond4557
+cond4695(no)->cond4704
+cond4704(yes)->cond4709
+cond4709(yes)->sub4713
+sub4713->sub4715
+cond4709(no)->cond4720
+cond4720->cond4557
+cond4704(no)->cond4557
+cond4650(no)->cond4665
+cond4665(yes)->sub4669
+sub4669->sub4671
+sub4671->sub4673
+sub4673->sub4675
+sub4675->sub4681
+cond4665(no)->sub4681
+cond4557(no)->sub4738
+sub4738->op4740
+op4740->sub4742
+sub4742->cond4745
+cond4745(yes)->op4839
+op4839->sub4841
+sub4841->cond4844
+cond4844(yes)->op4848
+op4848->sub4926
+sub4926(left)->cond4745
+cond4844(no)->cond4853
+cond4853(yes)->op4857
+op4857->sub4926
+cond4853(no)->cond4862
+cond4862(yes)->cond4867
+cond4867(yes)->sub4871
+sub4871->sub4919
+sub4919->sub4926
+cond4867(no)->cond4876
+cond4876(yes)->sub4880
+sub4880->sub4882
+sub4882->sub4919
+cond4876(no)->cond4887
+cond4887(yes)->sub4891
+sub4891->sub4919
+cond4887(no)->cond4896
+cond4896(yes)->sub4900
+sub4900->sub4919
+cond4896(no)->cond4905
+cond4905->sub4919
+cond4862(no)->sub4926
+cond4745(no)->e4930
+e4930->st4934
+st4934->io4936
+io4936->sub4939
+sub4939->cond4942
+cond4942(yes)->op5200
+op5200->op5202
+op5202->op5204
+op5204->sub5206
+sub5206->sub5208
+sub5208->sub5210
+sub5210->sub5212
+sub5212->op5214
+op5214->op5216
+op5216->sub5218
+sub5218->sub5220
+sub5220->op5222
+op5222->cond5225
+cond5225(yes)->cond5265
+cond5265(yes)->op5269
+op5269->sub5271
+sub5271->sub5294
+sub5294->op5296
+op5296(left)->cond5225
+cond5265(no)->cond5276
+cond5276(yes)->sub5280
+cond5276(no)->op5284
+op5284->op5286
+op5286->op5288
+op5288->sub5290
+sub5290->sub5294
+cond5225(no)->op5300
+op5300->sub5302
+sub5302->sub5304
+sub5304->op5306
+op5306->cond5309
+cond5309(yes)->cond5349
+cond5349(yes)->op5353
+op5353->sub5355
+sub5355->sub5378
+sub5378->op5380
+op5380(left)->cond5309
+cond5349(no)->cond5360
+cond5360(yes)->sub5364
+cond5360(no)->op5368
+op5368->op5370
+op5370->op5372
+op5372->sub5374
+sub5374->sub5378
+cond5309(no)->sub5384
+sub5384->cond5387
+cond5387(yes)->op5391
+op5391->op5393
+op5393->op5404
+op5404->op5406
+op5406->op5408
+op5408->op5410
+op5410->op5412
+op5412->op5414
+op5414->sub5416
+sub5416->sub5418
+sub5418->cond5421
+cond5421(yes)->sub5430
+sub5430->sub5432
+sub5432(left)->cond5421
+cond5421(no)->sub5436
+sub5436->sub5438
+sub5438->sub5440
+sub5440->cond5443
+cond5443->cond4942
+cond5387(no)->sub5397
+sub5397->op5399
+op5399->op5401
+op5401->op5404
+cond4942(no)->e5455
+e5455->st5459
+st5459->io5461
+io5461->op5464
+op5464->op5466
+op5466->sub5468
+sub5468->op5470
+op5470->op5472
+op5472->op5474
+op5474->sub5476
+sub5476->sub5478
+sub5478->sub5480
+sub5480->sub5482
+sub5482->op5484
+op5484->op5486
+op5486->sub5488
+sub5488->sub5490
+sub5490->sub5492
+sub5492->op5494
+op5494->cond5497
+cond5497(yes)->op5501
+op5501->op5503
+op5503->op5505
+op5505->cond5515
+cond5515(yes)->op5519
+op5519->op5521
+op5521->op5523
+op5523->sub5530
+sub5530->op5532
+op5532->op5534
+op5534->cond5537
+cond5537(yes)->sub5548
+sub5548->sub5550
+sub5550->sub5552
+sub5552(left)->cond5537
+cond5537(no)->sub5556
+sub5556->sub5558
+sub5558->cond5561
+cond5561(yes)->sub5565
+sub5565->sub5572
+sub5572->sub5574
+sub5574->op5576
+op5576->op5578
+op5578->op5580
+op5580->op5582
+op5582->cond5585
+cond5585(yes)->sub5596
+sub5596->sub5598
+sub5598->sub5600
+sub5600(left)->cond5585
+cond5585(no)->sub5604
+sub5604->sub5606
+sub5606->sub5608
+sub5608->sub5610
+sub5610->sub5612
+sub5612->op5614
+op5614->op5616
+op5616->cond5619
+cond5619(yes)->sub5630
+sub5630->sub5632
+sub5632->sub5634
+sub5634(left)->cond5619
+cond5619(no)->sub5638
+sub5638->sub5640
+sub5640->sub5642
+sub5642->sub5644
+sub5644->sub5646
+sub5646->op5648
+op5648->op5650
+op5650->cond5653
+cond5653(yes)->sub5664
+sub5664->sub5666
+sub5666->sub5668
+sub5668(left)->cond5653
+cond5653(no)->sub5672
+sub5672->sub5674
+sub5674->sub5676
+sub5676->sub5678
+sub5678->sub5680
+sub5680->sub5682
+sub5682->sub5684
+sub5684->sub5686
+sub5686->sub5688
+sub5688->sub5690
+sub5690->e5692
+e5692->st5696
+st5696->io5698
+io5698->op5701
+op5701->op5703
+op5703->cond5706
+cond5706(yes)->op5731
+op5731->op5733
+op5733->cond5736
+cond5736(yes)->sub5740
+sub5740->sub5742
+sub5742->sub5744
+sub5744->cond5706
+cond5736(no)->sub5748
+sub5748->cond5706
+cond5706(no)->sub5753
+sub5753->e5755
+e5755->st5759
+st5759->io5761
+io5761->op5764
+op5764->sub5766
+sub5766->op5768
+op5768->op5770
+op5770->sub5772
+sub5772->sub5774
+sub5774->sub5776
+sub5776->sub5778
+sub5778->op5780
+op5780->cond5783
+cond5783(yes)->cond5876
+cond5876(yes)->sub5880
+sub5880->sub5882
+sub5882->sub5884
+sub5884->sub5886
+sub5886->sub5907
+sub5907->op5909
+op5909->cond5912
+cond5912(yes)->op5916
+op5916->cond5783
+cond5912(no)->cond5921
+cond5921(yes)->op5925
+op5925->cond5783
+cond5921(no)->cond5930
+cond5930(yes)->cond5935
+cond5935(yes)->sub5939
+sub5939->sub5941
+cond5935(no)->cond5946
+cond5946->cond5783
+cond5930(no)->cond5783
+cond5876(no)->cond5891
+cond5891(yes)->sub5895
+sub5895->sub5897
+sub5897->sub5899
+sub5899->sub5901
+sub5901->sub5907
+cond5891(no)->sub5907
+cond5783(no)->sub5964
+sub5964->e5966
+e5966->st5970
+st5970->io5972
+io5972->op5975
+op5975->op5977
+op5977->sub5979
+sub5979->op5981
+op5981->op5983
+op5983->op5985
+op5985->sub5987
+sub5987->sub5989
+sub5989->sub5991
+sub5991->sub5993
+sub5993->op5995
+op5995->op5997
+op5997->sub5999
+sub5999->sub6001
+sub6001->sub6003
+sub6003->op6005
+op6005->cond6008
+cond6008(yes)->op6012
+op6012->op6014
+op6014->sub6016
+sub6016->op6018
+op6018->cond6028
+cond6028(yes)->op6032
+op6032->op6034
+op6034->op6036
+op6036->sub6043
+sub6043->op6045
+op6045->op6047
+op6047->cond6050
+cond6050(yes)->sub6061
+sub6061->sub6063
+sub6063->sub6065
+sub6065(left)->cond6050
+cond6050(no)->sub6069
+sub6069->sub6071
+sub6071->cond6074
+cond6074(yes)->sub6078
+sub6078->sub6085
+sub6085->sub6087
+sub6087->op6089
+op6089->op6091
+op6091->op6093
+op6093->cond6096
+cond6096(yes)->sub6107
+sub6107->sub6109
+sub6109->sub6111
+sub6111(left)->cond6096
+cond6096(no)->sub6115
+sub6115->sub6117
+sub6117->sub6119
+sub6119->sub6121
+sub6121->sub6123
+sub6123->op6125
+op6125->op6127
+op6127->cond6130
+cond6130(yes)->sub6141
+sub6141->sub6143
+sub6143->sub6145
+sub6145(left)->cond6130
+cond6130(no)->sub6149
+sub6149->sub6151
+sub6151->sub6153
+sub6153->sub6155
+sub6155->sub6157
+sub6157->op6159
+op6159->op6161
+op6161->cond6164
+cond6164(yes)->sub6175
+sub6175->sub6177
+sub6177->sub6179
+sub6179(left)->cond6164
+cond6164(no)->sub6183
+sub6183->sub6185
+sub6185->sub6187
+sub6187->sub6189
+sub6189->sub6191
+sub6191->sub6193
+sub6193->sub6195
+sub6195->sub6197
+sub6197->sub6199
+sub6199->e6201
+e6201->st6205
+st6205->io6207
+io6207->op6210
+op6210->op6212
+op6212->op6214
+op6214->cond6217
+cond6217(yes)->op6242
+op6242->op6244
+op6244->cond6247
+cond6247(yes)->sub6251
+sub6251->sub6253
+sub6253->sub6255
+sub6255->cond6217
+cond6247(no)->sub6259
+sub6259->cond6217
+cond6217(no)->sub6264
+sub6264->e6266
+e6266->sub6269
+sub6269->sub6271
+cond6074(no)->sub6082
+sub6082->sub6085
+cond6028(no)->op6040
+op6040->sub6043
+cond6008(no)->op6022
+op6022->op6024
+op6024->cond6028
+cond5561(no)->sub5569
+sub5569->sub5572
+cond5515(no)->op5527
+op5527->sub5530
+cond5497(no)->op5509
+op5509->op5511
+op5511->cond5515
+cond4481(no)->cond4490
+cond4490(yes)->sub4494
+sub4494->sub4531
+cond4490(no)->cond4499
+cond4499(yes)->sub4503
+sub4503->sub4531
+cond4499(no)->cond4508
+cond4508(yes)->sub4512
+sub4512->sub4531
+cond4508(no)->cond4517
+cond4517->sub4531
+cond4386(no)->sub4536
+cond4374(no)->cond4386
+cond3752(no)->op3760
+op3760->op3763
+cond3253(no)->op3261
+op3261->cond3265
+cond3222(no)->e3790
+cond3190(no)->cond3222
+cond639(no)->e650
+cond627(no)->cond639
+cond615(no)->cond627
+cond603(no)->cond615
+cond591(no)->cond603
+cond579(no)->cond591
+cond567(no)->cond579
+
